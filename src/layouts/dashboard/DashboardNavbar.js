@@ -1,11 +1,8 @@
-import PropTypes from 'prop-types';
 // material
 import { alpha, styled } from '@mui/material/styles';
-import { Box, Stack, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Box, Stack, AppBar, Toolbar } from '@mui/material';
 // components
-import Iconify from '../../components/Iconify';
 //
-import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 
 // ----------------------------------------------------------------------
@@ -34,19 +31,10 @@ const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-DashboardNavbar.propTypes = {
-  onOpenSidebar: PropTypes.func,
-};
-
-export default function DashboardNavbar({ onOpenSidebar }) {
+export default function DashboardNavbar() {
   return (
     <RootStyle>
       <ToolbarStyle>
-        <IconButton onClick={onOpenSidebar} sx={{ mr: 1, color: 'text.primary', display: { lg: 'none' } }}>
-          <Iconify icon="eva:menu-2-fill" />
-        </IconButton>
-
-        <Searchbar />
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>

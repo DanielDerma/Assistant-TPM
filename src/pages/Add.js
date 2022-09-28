@@ -1,6 +1,5 @@
 // @mui
 import { Grid, Container, Typography } from '@mui/material';
-import { useState } from 'react';
 import { AddProvider } from '../hooks/useAddPage';
 // components
 import Page from '../components/Page';
@@ -11,11 +10,11 @@ import { AppWidgetSummary, Stepper } from '../sections/@dashboard/add';
 
 export default function DashboardApp() {
   return (
-    <AddProvider>
-      <Page title="Añadir">
+    <Page title="Añadir">
+      <AddProvider>
         <Stepper />
         <Container maxWidth="xl">
-          <Typography variant="h4">Hola, Bienvenido</Typography>
+          <Typography variant="h4">Hola, Bienvenido.</Typography>
           <Typography variant="h4" sx={{ mb: 5 }}>
             Selecciona una tarjeta si se requiere.
           </Typography>
@@ -34,7 +33,7 @@ export default function DashboardApp() {
             </Grid>
           </Grid>
         </Container>
-      </Page>
-    </AddProvider>
+      </AddProvider>
+    </Page>
   );
 }

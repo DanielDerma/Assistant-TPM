@@ -9,7 +9,6 @@ import Page from '../components/Page';
 import Logo from '../components/Logo';
 // sections
 import { RegisterForm } from '../sections/auth/register';
-import AuthSocial from '../sections/auth/AuthSocial';
 
 // ----------------------------------------------------------------------
 
@@ -68,7 +67,7 @@ export default function Register() {
           <Logo />
           {smUp && (
             <Typography variant="body2" sx={{ mt: { md: -2 } }}>
-              Already have an account? {''}
+              Ya tienes una cuenta? {''}
               <Link variant="subtitle2" component={RouterLink} to="/login">
                 Login
               </Link>
@@ -79,7 +78,7 @@ export default function Register() {
         {mdUp && (
           <SectionStyle>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Manage the job more effectively with Minimal
+              Maneja tu negocio de manera fácil y sencilla
             </Typography>
             <img alt="register" src="/static/illustrations/illustration_register.png" />
           </SectionStyle>
@@ -92,8 +91,6 @@ export default function Register() {
             </Typography>
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Free forever. No credit card needed.</Typography>
-
-            <AuthSocial />
 
             <RegisterForm />
 

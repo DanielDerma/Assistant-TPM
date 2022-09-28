@@ -35,9 +35,9 @@ const navConfigAdmin = [
     icon: getIcon('eva:people-fill'),
   },
   {
-    title: 'Modificar',
-    path: '/dashboard/modify',
-    icon: getIcon('eva:file-add-fill'),
+    title: 'Gestionar',
+    path: '/dashboard/manage',
+    icon: getIcon('eva:settings-fill'),
   },
 ];
 
