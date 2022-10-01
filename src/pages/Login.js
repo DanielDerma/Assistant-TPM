@@ -70,7 +70,7 @@ export default function Login() {
         {mdUp && (
           <SectionStyle>
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Maneja tu negocio de forma fácil y sencilla
+              Maneja tu negocio de forma fácil y sencilla.
             </Typography>
             <img src="/static/illustrations/illustration_register.png" alt="login" />
           </SectionStyle>

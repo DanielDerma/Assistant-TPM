@@ -141,7 +141,7 @@ NavSection.propTypes = {
   navConfig3: PropTypes.array,
 };
 
-export default function NavSection({ navConfig, navConfig2, navConfig3, ...other }) {
+export default function NavSection({ navConfig, navConfig2, ...other }) {
   const { pathname } = useLocation();
 
   const match = (path) => (path ? !!matchPath({ path, end: false }, pathname) : false);
@@ -149,11 +149,11 @@ export default function NavSection({ navConfig, navConfig2, navConfig3, ...other
   return (
     <Box {...other}>
       <List disablePadding sx={{ p: 1 }}>
-        {navConfig.map((item) => (
+        {navConfig2.map((item) => (
           <NavItem key={item.title} item={item} active={match} />
         ))}
-        <Divider />
-        {navConfig2.map((item) => (
+        <Divider sx={{ my: 2 }} />
+        {navConfig.map((item) => (
           <NavItem key={item.title} item={item} active={match} />
         ))}
       </List>

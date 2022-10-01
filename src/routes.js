@@ -12,6 +12,9 @@ import App from './pages/App';
 import Admin from './pages/Admin';
 import Locations from './pages/Locations';
 import Location from './pages/Location';
+import Area from './pages/Area';
+import Workspace from './pages/Workspace';
+import System from './pages/System';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +24,7 @@ export default function Router() {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
-        { element: <Navigate to="/dashboard/manage/location" replace />, index: true },
+        { element: <Navigate to="/dashboard/add" replace />, index: true },
         { path: 'add', element: <Add /> },
         { path: 'filter', element: <Filter /> },
         { path: 'export', element: <Export /> },
@@ -30,9 +33,12 @@ export default function Router() {
         {
           path: 'manage',
           children: [
-            { element: <Navigate to="/dashboard/manage/location" replace />, index: true },
-            { path: 'location', element: <Locations /> },
-            { path: 'location/:name', element: <Location /> },
+            { element: <Navigate to="/dashboard/manage/locations" replace />, index: true },
+            { path: 'locations', element: <Locations /> },
+            { path: ':location', element: <Location /> },
+            { path: ':location/:area', element: <Area /> },
+            { path: ':location/:area/:workspace', element: <Workspace /> },
+            { path: ':location/:area/:workspace/:system', element: <System /> },
           ],
         },
       ],

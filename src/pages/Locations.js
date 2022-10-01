@@ -1,19 +1,29 @@
 import { Typography } from '@mui/material';
 import { Container } from '@mui/system';
-import React from 'react';
+import { useEffect, useState } from 'react';
+import { getLocations } from '../services/firebaseFunctions';
 import Page from '../components/Page';
-import { Breadcrumbs, Media } from '../sections/@dashboard/modify';
+import Breadcrumbs from '../components/Breadcrumbs';
+import Media from '../components/Media';
 
 const Modify = () => {
+  const [data, setData] = useState([]);
   console.log();
+
+  useEffect(() => {
+    getLocations().then((data) => {
+      setData(data);
+    });
+  }, []);
+
   return (
     <Page title="Modificar">
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Lugar
+        <Typography variant="h3" sx={{ mb: 4 }}>
+          Compañías
         </Typography>
-        <Breadcrumbs link={[{ name: 'Gestionar' }, { name: 'Lugar', href: '/dashboard/manage' }]} />
-        <Media />
+        <Breadcrumbs link={[{ name: 'Gestionar', href: '/dashboard/manage/locations' }, {}]} />
+        <Media data={data} />
       </Container>
     </Page>
   );

@@ -1,29 +1,79 @@
-import { Container, Grid } from '@mui/material';
+import { Box, Container, Divider, FormControl, Grid, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { useState } from 'react';
+
 import { faker } from '@faker-js/faker';
 import Iconify from '../components/Iconify';
 
 import {
-  AppTasks,
-  AppNewsUpdate,
-  AppOrderTimeline,
   AppCurrentVisits,
   AppWebsiteVisits,
-  AppTrafficBySite,
-  AppCurrentSubject,
   AppConversionRates,
+  BankingWidgetSummary,
 } from '../sections/@dashboard/app';
 
 const App = () => {
   const theme = useTheme();
+  const [input, setInput] = useState(10);
+  const handleInput = (event) => setInput(event.target.value);
   return (
     <div>
       <Container maxWidth="xl">
+        <Typography variant="h4">Hola, Bienvenido.</Typography>
+        <Box>
+          <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} sx={{ mb: 5 }}>
+            <Typography variant="h4">Selecciona una Compañía:</Typography>
+            <FormControl sx={{ minWidth: 250 }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select-label"
+                variant="standard"
+                sx={{ fontSize: 20 }}
+                label="Compañía"
+                value={input}
+                onChange={handleInput}
+              >
+                <MenuItem value={10}>Tortillería la Salle</MenuItem>
+                <MenuItem value={20}>Empresa 1</MenuItem>
+                <MenuItem value={30}>Empresa 2</MenuItem>
+                <MenuItem value={40}>Empresa 3</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </Box>
         <Grid container spacing={3}>
+          <Grid item xs={12} md={12}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+              <BankingWidgetSummary
+                title="Mantenimiento"
+                icon={'ant-design:bug-filled'}
+                percent={2.6}
+                total={18765}
+                color="error"
+                chartData={[111, 136, 76, 108, 74, 54, 57, 84]}
+              />
+              <BankingWidgetSummary
+                title="Operación"
+                color="info"
+                icon={'ant-design:setting-filled'}
+                percent={-0.5}
+                total={8938}
+                chartData={[111, 136, 76, 108, 74, 54, 57, 84]}
+              />
+              <BankingWidgetSummary
+                title="Seguridad"
+                color="success"
+                icon={'ant-design:security-scan-filled'}
+                percent={-0.5}
+                total={8938}
+                chartData={[111, 136, 76, 108, 74, 54, 57, 84]}
+              />
+            </Stack>
+          </Grid>
           <Grid item xs={12} md={6} lg={8}>
             <AppWebsiteVisits
-              title="Website Visits"
-              subheader="(+43%) than last year"
+              title="Tarjetas en lo que va del año"
+              subheader="(-43%) que el año pasado"
               chartLabels={[
                 '01/01/2003',
                 '02/01/2003',
@@ -39,19 +89,19 @@ const App = () => {
               ]}
               chartData={[
                 {
-                  name: 'Team A',
+                  name: 'Mantenimiento',
                   type: 'column',
                   fill: 'solid',
                   data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
                 },
                 {
-                  name: 'Team B',
+                  name: 'Operación',
                   type: 'area',
                   fill: 'gradient',
                   data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
                 },
                 {
-                  name: 'Team C',
+                  name: 'Seguridad',
                   type: 'line',
                   fill: 'solid',
                   data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
@@ -62,122 +112,33 @@ const App = () => {
 
           <Grid item xs={12} md={6} lg={4}>
             <AppCurrentVisits
-              title="Current Visits"
+              title="Tarjetas de este Mes"
               chartData={[
-                { label: 'America', value: 4344 },
-                { label: 'Asia', value: 5435 },
-                { label: 'Europe', value: 1443 },
-                { label: 'Africa', value: 4443 },
+                { label: 'Mantenimiento', value: 4344 },
+                { label: 'Operación', value: 5435 },
+                { label: 'Seguridad', value: 1443 },
               ]}
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.chart.blue[0],
-                theme.palette.chart.violet[0],
-                theme.palette.chart.yellow[0],
-              ]}
+              chartColors={[theme.palette.error.main, theme.palette.info.main, theme.palette.success.main]}
             />
           </Grid>
+          <Grid item xs={12} md={12} lg={12} sx={{ my: 2 }}>
+            <Divider />
+          </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
+          <Grid item xs={12} md={12} lg={12}>
             <AppConversionRates
-              title="Conversion Rates"
-              subheader="(+43%) than last year"
+              title="Numero de Tarjetas por Compañía en total"
               chartData={[
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentSubject
-              title="Current Subject"
-              chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
-              chartData={[
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ]}
-              chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <AppNewsUpdate
-              title="News Update"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/static/mock-images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
-              }))}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppOrderTimeline
-              title="Order Timeline"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: [
-                  '1983, orders, $4220',
-                  '12 Invoices have been paid',
-                  'Order #37745 from September',
-                  'New order placed #XF-2356',
-                  'New order placed #XF-2346',
-                ][index],
-                type: `order${index + 1}`,
-                time: faker.date.past(),
-              }))}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={4}>
-            <AppTrafficBySite
-              title="Traffic by Site"
-              list={[
-                {
-                  name: 'FaceBook',
-                  value: 323234,
-                  icon: <Iconify icon={'eva:facebook-fill'} color="#1877F2" width={32} height={32} />,
-                },
-                {
-                  name: 'Google',
-                  value: 341212,
-                  icon: <Iconify icon={'eva:google-fill'} color="#DF3E30" width={32} height={32} />,
-                },
-                {
-                  name: 'Linkedin',
-                  value: 411213,
-                  icon: <Iconify icon={'eva:linkedin-fill'} color="#006097" width={32} height={32} />,
-                },
-                {
-                  name: 'Twitter',
-                  value: 443232,
-                  icon: <Iconify icon={'eva:twitter-fill'} color="#1C9CEA" width={32} height={32} />,
-                },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <AppTasks
-              title="Tasks"
-              list={[
-                { id: '1', label: 'Create FireStone Logo' },
-                { id: '2', label: 'Add SCSS and JS files if required' },
-                { id: '3', label: 'Stakeholder Meeting' },
-                { id: '4', label: 'Scoping & Estimations' },
-                { id: '5', label: 'Sprint Showcase' },
+                { label: 'Empresa 1', value: 400 },
+                { label: 'Empresa 2', value: 430 },
+                { label: 'Empresa 3', value: 448 },
+                { label: 'Empresa 4', value: 470 },
+                { label: 'Empresa 5', value: 540 },
+                { label: 'Empresa 6', value: 580 },
+                { label: 'Empresa 7', value: 690 },
+                { label: 'Empresa 8', value: 1100 },
+                { label: 'Empresa 9', value: 1200 },
+                { label: 'Empresa 10', value: 1380 },
               ]}
             />
           </Grid>

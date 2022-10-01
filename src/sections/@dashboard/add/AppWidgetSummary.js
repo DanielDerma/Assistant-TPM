@@ -4,7 +4,6 @@ import { alpha, styled } from '@mui/material/styles';
 import { Card, CardActionArea, Typography } from '@mui/material';
 // components
 import Iconify from '../../../components/Iconify';
-import { useAdd } from '../../../hooks/useAddPage';
 
 // ----------------------------------------------------------------------
 
@@ -25,12 +24,17 @@ AppWidgetSummary.propTypes = {
   color: PropTypes.string,
   icon: PropTypes.string,
   title: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
   sx: PropTypes.object,
   onOpen: PropTypes.func,
+  onTitle: PropTypes.func,
 };
 
-export default function AppWidgetSummary({ title, icon, color = 'primary', sx, ...other }) {
-  const { handleOpen } = useAdd();
+export default function AppWidgetSummary({ title, type, icon, color = 'primary', sx, onOpen, onTitle, ...other }) {
+  const handleOpen = () => {
+    onOpen();
+    onTitle({ title, type });
+  };
   return (
     <Card>
       <CardActionArea

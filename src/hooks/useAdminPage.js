@@ -1,18 +1,19 @@
 import { createContext, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
-const AddContext = createContext();
+const AdminContext = createContext();
 
-export function useAdd() {
-  return useContext(AddContext);
+export function useAdmin() {
+  return useContext(AdminContext);
 }
 
-AddProvider.propTypes = {
+AdminProvider.propTypes = {
   children: PropTypes.node,
 };
 
-export function AddProvider({ children }) {
+export function AdminProvider({ children }) {
   const [open, setOpen] = useState(false);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -20,10 +21,11 @@ export function AddProvider({ children }) {
   const handleClose = () => {
     setOpen(false);
   };
+
   const value = {
     open,
     handleOpen,
     handleClose,
   };
-  return <AddContext.Provider value={value}>{children}</AddContext.Provider>;
+  return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
 }

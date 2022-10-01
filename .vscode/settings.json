@@ -1,3 +1,14 @@
 {
-  "cSpell.words": ["bgcolor", "dayjs", "firestore", "Gestion"]
+  "cSpell.words": [
+    "bgcolor",
+    "dayjs",
+    "descripcion",
+    "firestore",
+    "formik",
+    "Formik",
+    "Gestion",
+    "Mezcaleria",
+    "Tortillería",
+    "Ydescripcion"
+  ]
 }
