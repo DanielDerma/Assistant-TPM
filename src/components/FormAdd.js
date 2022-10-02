@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 
 // components
 import Image from 'mui-image';
-import Dropzone from '../sections/@dashboard/add/Dropzone';
+import Dropzone from './Dropzone';
 import StepperForm from './StepperForm';
 import { createError } from '../services/firebaseFunctions';
 
@@ -42,10 +42,22 @@ const FormAdd = ({ onClose, open, title }) => {
       image: '',
       type: title.type,
       stepper: {
-        location: '',
-        area: '',
-        workspace: '',
-        system: '',
+        location: {
+          id: '',
+          name: '',
+        },
+        area: {
+          id: '',
+          name: '',
+        },
+        workspace: {
+          id: '',
+          name: '',
+        },
+        system: {
+          id: '',
+          name: '',
+        },
       },
     },
     validationSchema: Yup.object({
@@ -54,7 +66,12 @@ const FormAdd = ({ onClose, open, title }) => {
       description: Yup.string().required('Requerido').max(50, 'Máximo 50 caracteres'),
       image: Yup.string().required('Requerido'),
       stepper: Yup.object().shape({
-        location: Yup.string().required(),
+        location: Yup.object().shape({
+          location: Yup.string().required(),
+          area: Yup.string().required(),
+          workspace: Yup.string().required(),
+          system: Yup.string().required(),
+        }),
         area: Yup.string().required(),
         workspace: Yup.string().required(),
         system: Yup.string().required(),
@@ -63,10 +80,14 @@ const FormAdd = ({ onClose, open, title }) => {
     onSubmit: (values) => {
       createError(values)
         .then((elem) => {
-          console.log(elem);
+          console.log(elem, 'elemrefid');
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          onClose();
+          setImgPreview('');
         });
     },
   });
@@ -90,11 +111,6 @@ const FormAdd = ({ onClose, open, title }) => {
   const handleFinish = (value) => {
     formik.setFieldValue('stepper', value);
   };
-  const handleSubmit = () => {
-    onClose();
-    formik.handleSubmit();
-    setImgPreview('');
-  };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth sx={{ minHeight: 700 }}>
@@ -117,11 +133,11 @@ const FormAdd = ({ onClose, open, title }) => {
                       renderInput={(params) => <TextField {...params} />}
                     />
                     <FormControl sx={{ minWidth: 250 }}>
-                      <InputLabel id="demo-simple-select-label">Tipo de Anomalía</InputLabel>
+                      <InputLabel id="demo-simple-select-label">Estatus de Anomalía</InputLabel>
                       <Select
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
-                        label="Tipo de Anomalía"
+                        label="Estatus de Anomalía"
                         value={formik.values.anomaly}
                         onChange={(event) => {
                           formik.setFieldValue('anomaly', event.target.value);
@@ -160,7 +176,7 @@ const FormAdd = ({ onClose, open, title }) => {
 
       <DialogActions>
         <Button onClick={handleCloseWithReset}>Cancelar</Button>
-        <Button onClick={handleSubmit}>Añadir</Button>
+        <Button onClick={formik.handleSubmit}>Añadir</Button>
       </DialogActions>
     </Dialog>
   );

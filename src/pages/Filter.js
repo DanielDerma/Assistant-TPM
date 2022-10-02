@@ -6,14 +6,11 @@ import { useState } from 'react';
 import {
   Card,
   Table,
-  Stack,
-  Avatar,
   Checkbox,
   TableRow,
   TableBody,
   TableCell,
   Container,
-  Typography,
   TableContainer,
   TablePagination,
 } from '@mui/material';
@@ -29,11 +26,13 @@ import USERLIST from '../_mock/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'company', label: 'Compañía', alignRight: false },
+  { id: 'area', label: 'Área', alignRight: false },
+  { id: 'workspace', label: 'Trabajo', alignRight: false },
+  { id: 'system', label: 'Sistema', alignRight: false },
+  { id: 'date', label: 'Fecha', alignRight: false },
+  { id: 'type', label: 'Tipo', alignRight: false },
+  { id: 'anomaly', label: 'Anomalía', alignRight: false },
   { id: '' },
 ];
 
@@ -75,9 +74,9 @@ export default function User() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('name');
+  const [orderBy, setOrderBy] = useState('company');
 
-  const [filterName, setFilterName] = useState('');
+  const [filterType, setFilterType] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -91,18 +90,18 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = USERLIST.map((n) => n.company);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, type) => {
+    const selectedIndex = selected.indexOf(type);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, type);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -122,13 +121,13 @@ export default function User() {
     setPage(0);
   };
 
-  const handleFilterByName = (event) => {
-    setFilterName(event.target.value);
+  const handleFilterByType = (event) => {
+    setFilterType(event.target.value);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterType);
 
   const isUserNotFound = filteredUsers.length === 0;
 
@@ -148,8 +147,8 @@ export default function User() {
           <UserListToolbar
             onOpenFilter={handleOpenFilter}
             numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
+            filterType={filterType}
+            onFilterType={handleFilterByType}
           />
 
           <Scrollbar>
@@ -166,7 +165,7 @@ export default function User() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, name, role, status, company, avatarUrl, isVerified } = row;
+                    const { id, type, name, status, company, area, workspace, date } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -179,19 +178,14 @@ export default function User() {
                         aria-checked={isItemSelected}
                       >
                         <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, name)} />
-                        </TableCell>
-                        <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Avatar alt={name} src={avatarUrl} />
-                            <Typography variant="subtitle2" noWrap>
-                              {name}
-                            </Typography>
-                          </Stack>
+                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, type)} />
                         </TableCell>
                         <TableCell align="left">{company}</TableCell>
-                        <TableCell align="left">{role}</TableCell>
-                        <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                        <TableCell align="left">{area}</TableCell>
+                        <TableCell align="left">{workspace}</TableCell>
+                        <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">{date}</TableCell>
+                        <TableCell align="left">{status}</TableCell>
                         <TableCell align="left">
                           <Label variant="ghost" color={(status === 'banned' && 'error') || 'success'}>
                             {sentenceCase(status)}
@@ -215,7 +209,7 @@ export default function User() {
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
+                        <SearchNotFound searchQuery={filterType} />
                       </TableCell>
                     </TableRow>
                   </TableBody>

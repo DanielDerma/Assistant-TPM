@@ -14,7 +14,6 @@ import Locations from './pages/Locations';
 import Location from './pages/Location';
 import Area from './pages/Area';
 import Workspace from './pages/Workspace';
-import System from './pages/System';
 
 // ----------------------------------------------------------------------
 
@@ -38,7 +37,6 @@ export default function Router() {
             { path: ':location', element: <Location /> },
             { path: ':location/:area', element: <Area /> },
             { path: ':location/:area/:workspace', element: <Workspace /> },
-            { path: ':location/:area/:workspace/:system', element: <System /> },
           ],
         },
       ],

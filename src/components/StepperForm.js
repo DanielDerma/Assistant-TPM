@@ -18,7 +18,7 @@ const steps = [
     type: 'location',
   },
   {
-    label: 'Area',
+    label: 'Área',
     type: 'area',
   },
   {
@@ -30,6 +30,11 @@ const steps = [
     type: 'system',
   },
 ];
+
+FormDialog.propTypes = {
+  onFinish: PropTypes.func,
+  errorSubmit: PropTypes.bool,
+};
 
 export default function FormDialog({ onFinish, errorSubmit }) {
   const [activeStep, setActiveStep] = React.useState(0);
