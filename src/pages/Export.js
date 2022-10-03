@@ -15,7 +15,7 @@ const Export = () => {
         </Typography>
         <DataPickerRange />
         <Box sx={{ mt: 5 }}>
-          <Stepper />
+          <Stepper onFinish={(data) => console.log(data)} />
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Button variant="contained" endIcon={<Excel />} sx={{ mx: 'auto' }}>

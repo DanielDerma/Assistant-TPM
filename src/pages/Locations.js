@@ -70,7 +70,7 @@ const Modify = () => {
       />
       <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h3">Compañía</Typography>
+          <Typography variant="h4">Compañía</Typography>
           <Button onClick={handleOpen} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Añadir Compañía
           </Button>

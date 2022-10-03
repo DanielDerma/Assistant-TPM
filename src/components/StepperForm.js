@@ -40,6 +40,7 @@ export default function FormDialog({ onFinish, errorSubmit }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
   const [menuItems, setMenuItems] = React.useState([]);
+  const [workAroundValueFormik, setWorkAroundValueFormik] = React.useState();
 
   React.useEffect(() => {
     setLoading(true);
@@ -50,7 +51,8 @@ export default function FormDialog({ onFinish, errorSubmit }) {
   }, []);
 
   const handleNext = (step) => {
-    getFeed(step, formik.values).then((data) => {
+    formik.setFieldValue(step, workAroundValueFormik);
+    getFeed(step, { ...formik.values, [step]: workAroundValueFormik }).then((data) => {
       setMenuItems(data);
       setLoading(false);
     });
@@ -70,22 +72,51 @@ export default function FormDialog({ onFinish, errorSubmit }) {
 
   const formik = useFormik({
     initialValues: {
-      location: '',
-      area: '',
-      workspace: '',
-      system: '',
+      location: {
+        id: '',
+        title: '',
+      },
+      area: {
+        id: '',
+        title: '',
+      },
+      workspace: {
+        id: '',
+        title: '',
+      },
+      system: {
+        id: '',
+        title: '',
+      },
     },
-    validationSchema: Yup.object({
-      location: Yup.string().required('Campo requerido'),
-      area: Yup.string().required('Campo requerido'),
-      workspace: Yup.string().required('Campo requerido'),
-      system: Yup.string().required('Campo requerido'),
+    validationSchema: Yup.object().shape({
+      location: Yup.object().shape({
+        id: Yup.string().required(),
+        title: Yup.string().required(),
+      }),
+      area: Yup.object().shape({
+        id: Yup.string().required(),
+        title: Yup.string().required(),
+      }),
+      workspace: Yup.object().shape({
+        id: Yup.string().required(),
+        title: Yup.string().required(),
+      }),
+      system: Yup.object().shape({
+        id: Yup.string().required(),
+        title: Yup.string().required(),
+      }),
     }),
     onSubmit: (values) => {
       onFinish(values);
     },
   });
 
+  const handleWorkAround = (obj) => {
+    setWorkAroundValueFormik(obj);
+  };
+
+  console.log(formik.values);
   return (
     <Box sx={{ width: '100%' }}>
       <Stepper activeStep={activeStep} orientation="vertical" sx={{ mb: 2 }}>
@@ -114,7 +145,11 @@ export default function FormDialog({ onFinish, errorSubmit }) {
                       </MenuItem>,
                       !loading &&
                         menuItems.map((item) => (
-                          <MenuItem key={item.id} value={item.id}>
+                          <MenuItem
+                            onClick={() => handleWorkAround({ id: item.id, title: item.title })}
+                            key={item.id}
+                            value={item.title}
+                          >
                             {item.title}
                           </MenuItem>
                         )),
@@ -129,7 +164,7 @@ export default function FormDialog({ onFinish, errorSubmit }) {
                         loading={loading}
                         variant="contained"
                         type={index === steps.length - 1 ? 'submit' : 'button'}
-                        disabled={formik.values[step.type] === ''}
+                        disabled={formik.values[step.type].id === ''}
                         onClick={() => handleNext(step.type)}
                         sx={{ mt: 1, mr: 1 }}
                       >

@@ -5,6 +5,8 @@ const useDataManage = (step, values) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  console.log(values);
+
   useEffect(() => {
     setLoading(true);
     getFeed(step, values)

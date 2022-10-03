@@ -44,19 +44,19 @@ const FormAdd = ({ onClose, open, title }) => {
       stepper: {
         location: {
           id: '',
-          name: '',
+          title: '',
         },
         area: {
           id: '',
-          name: '',
+          title: '',
         },
         workspace: {
           id: '',
-          name: '',
+          title: '',
         },
         system: {
           id: '',
-          name: '',
+          title: '',
         },
       },
     },
@@ -67,14 +67,21 @@ const FormAdd = ({ onClose, open, title }) => {
       image: Yup.string().required('Requerido'),
       stepper: Yup.object().shape({
         location: Yup.object().shape({
-          location: Yup.string().required(),
-          area: Yup.string().required(),
-          workspace: Yup.string().required(),
-          system: Yup.string().required(),
+          id: Yup.string().required(),
+          title: Yup.string().required(),
         }),
-        area: Yup.string().required(),
-        workspace: Yup.string().required(),
-        system: Yup.string().required(),
+        area: Yup.object().shape({
+          id: Yup.string().required(),
+          title: Yup.string().required(),
+        }),
+        workspace: Yup.object().shape({
+          id: Yup.string().required(),
+          title: Yup.string().required(),
+        }),
+        system: Yup.object().shape({
+          id: Yup.string().required(),
+          title: Yup.string().required(),
+        }),
       }),
     }),
     onSubmit: (values) => {
@@ -88,6 +95,7 @@ const FormAdd = ({ onClose, open, title }) => {
         .finally(() => {
           onClose();
           setImgPreview('');
+          formik.resetForm();
         });
     },
   });

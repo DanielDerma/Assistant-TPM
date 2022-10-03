@@ -1,6 +1,5 @@
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // material
 import {
@@ -13,24 +12,24 @@ import {
   Container,
   TableContainer,
   TablePagination,
+  Typography,
 } from '@mui/material';
 // components
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
+import { getSubCollectionErrors } from '../services/firebaseFunctions';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'company', label: 'Compañía', alignRight: false },
+  { id: 'location', label: 'Compañía', alignRight: false },
   { id: 'area', label: 'Área', alignRight: false },
   { id: 'workspace', label: 'Trabajo', alignRight: false },
   { id: 'system', label: 'Sistema', alignRight: false },
-  { id: 'date', label: 'Fecha', alignRight: false },
+  { id: 'dateAndTime', label: 'Fecha', alignRight: false },
   { id: 'type', label: 'Tipo', alignRight: false },
   { id: 'anomaly', label: 'Anomalía', alignRight: false },
   { id: '' },
@@ -62,7 +61,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.location.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -76,11 +75,23 @@ export default function User() {
 
   const [orderBy, setOrderBy] = useState('company');
 
-  const [filterType, setFilterType] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [openFilter, setOpenFilter] = useState(false);
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    getSubCollectionErrors().then((data) => {
+      console.log(data);
+      setData(data);
+      setLoading(false);
+    });
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -90,18 +101,18 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.company);
+      const newSelecteds = data.map((n) => n.company);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, type) => {
-    const selectedIndex = selected.indexOf(type);
+  const handleClick = (event, location) => {
+    const selectedIndex = selected.indexOf(location);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, type);
+      newSelected = newSelected.concat(selected, location);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -121,13 +132,13 @@ export default function User() {
     setPage(0);
   };
 
-  const handleFilterByType = (event) => {
-    setFilterType(event.target.value);
+  const handleFilterByLocation = (event) => {
+    setFilterLocation(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterType);
+  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterLocation);
 
   const isUserNotFound = filteredUsers.length === 0;
 
@@ -139,16 +150,23 @@ export default function User() {
     setOpenFilter(false);
   };
 
+  if (loading) {
+    return 'Loading...';
+  }
+
   return (
-    <Page title="User">
+    <Page title="Filtrado">
       <FilterSidebar isOpenFilter={openFilter} onCloseFilter={handleCloseFilter} />
-      <Container>
+      <Container maxWidth="xl">
+        <Typography variant="h4" sx={{ mb: 5 }}>
+          Filtrado
+        </Typography>
         <Card>
           <UserListToolbar
             onOpenFilter={handleOpenFilter}
             numSelected={selected.length}
-            filterType={filterType}
-            onFilterType={handleFilterByType}
+            filterLocation={filterLocation}
+            onFilterLocation={handleFilterByLocation}
           />
 
           <Scrollbar>
@@ -158,14 +176,14 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, type, name, status, company, area, workspace, date } = row;
+                    const { id, type, name, status, area, workspace, location } = row;
                     const isItemSelected = selected.indexOf(name) !== -1;
 
                     return (
@@ -178,19 +196,12 @@ export default function User() {
                         aria-checked={isItemSelected}
                       >
                         <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, type)} />
+                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, location)} />
                         </TableCell>
-                        <TableCell align="left">{company}</TableCell>
+                        <TableCell align="left">{location}</TableCell>
                         <TableCell align="left">{area}</TableCell>
                         <TableCell align="left">{workspace}</TableCell>
                         <TableCell align="left">{type}</TableCell>
-                        <TableCell align="left">{date}</TableCell>
-                        <TableCell align="left">{status}</TableCell>
-                        <TableCell align="left">
-                          <Label variant="ghost" color={(status === 'banned' && 'error') || 'success'}>
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell>
 
                         <TableCell align="right">
                           <UserMoreMenu />
@@ -209,7 +220,7 @@ export default function User() {
                   <TableBody>
                     <TableRow>
                       <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterType} />
+                        <SearchNotFound searchQuery={filterLocation} />
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -221,7 +232,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={data.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

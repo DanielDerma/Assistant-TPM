@@ -14,16 +14,22 @@ import Locations from './pages/Locations';
 import Location from './pages/Location';
 import Area from './pages/Area';
 import Workspace from './pages/Workspace';
+import useAuth from './hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const { isAuthenticated } = useAuth();
+
   return useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
-        { element: <Navigate to="/dashboard/add" replace />, index: true },
+        {
+          element: <Navigate to="/dashboard/add" replace />,
+          index: true,
+        },
         { path: 'add', element: <Add /> },
         { path: 'filter', element: <Filter /> },
         { path: 'export', element: <Export /> },
@@ -49,7 +55,7 @@ export default function Router() {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/dashboard/add" /> },
+        { path: '/', element: <Navigate to="/login" /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

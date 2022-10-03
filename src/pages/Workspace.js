@@ -18,18 +18,24 @@ const steps = [
 ];
 
 const Modify = () => {
-  const params = useParams();
+  const { location, area, workspace } = useParams();
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useDataManage('workspace', params);
+  const values = {
+    location: { id: location },
+    area: { id: area },
+    workspace: { id: workspace },
+  };
+
+  const { data, loading } = useDataManage('workspace', values);
 
   const handleCreateSystem = async (values) => {
     try {
       const elem = await createFromSystem({
         ...values,
-        locationId: params.location,
-        areaId: params.area,
-        workspaceId: params.workspace,
+        locationId: location,
+        areaId: area,
+        workspaceId: workspace,
       });
       console.log(elem);
       return elem;
@@ -48,7 +54,7 @@ const Modify = () => {
   };
 
   return (
-    <Page name="Modificar">
+    <Page title="Sistemas">
       <StepperManage
         open={open}
         onClose={handleClose}
@@ -66,9 +72,9 @@ const Modify = () => {
         <Breadcrumbs
           link={[
             { name: 'Gestionar', href: '/dashboard/manage/locations' },
-            { name: params.location, href: `/dashboard/manage/${params.location}` },
-            { name: params.area, href: `/dashboard/manage/${params.location}/${params.area}` },
-            { name: params.workspace, href: `/dashboard/manage/${params.location}/${params.area}/${params.workspace}` },
+            { name: location, href: `/dashboard/manage/${location}` },
+            { name: area, href: `/dashboard/manage/${location}/${area}` },
+            { name: workspace, href: `/dashboard/manage/${location}/${area}/${workspace}` },
             {},
           ]}
         />

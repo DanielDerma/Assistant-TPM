@@ -39,6 +39,7 @@ export default function AppWidgetSummary({ title, type, icon, color = 'primary',
     <Card>
       <CardActionArea
         sx={{
+          height: 270,
           py: 5,
           boxShadow: 0,
           textAlign: 'center',

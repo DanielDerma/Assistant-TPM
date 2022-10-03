@@ -44,7 +44,7 @@ export default function DashboardApp() {
     <Page title="Añadir">
       <FormAdd onClose={handleClose} open={open} title={title} />
       <Container maxWidth="xl">
-        <Typography variant="h4">Hola, Bienvenido.</Typography>
+        <Typography variant="h4">Hola, Bienvenido</Typography>
         <Typography variant="h4" sx={{ mb: 5 }}>
           Selecciona una tarjeta si es requerido.
         </Typography>

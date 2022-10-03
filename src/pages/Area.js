@@ -22,14 +22,19 @@ const steps = [
 ];
 
 const Area = () => {
-  const params = useParams();
+  const { location, area } = useParams();
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useDataManage('area', params);
+  const values = {
+    location: { id: location },
+    area: { id: area },
+  };
+
+  const { data, loading } = useDataManage('area', values);
 
   const handleCreateWorkspace = async (values) => {
     try {
-      const elem = await createFromWorkspace({ ...values, locationId: params.location, areaId: params.area });
+      const elem = await createFromWorkspace({ ...values, locationId: location, areaId: area });
       console.log(elem);
       return elem;
     } catch (error) {
@@ -47,7 +52,7 @@ const Area = () => {
   };
 
   return (
-    <Page name="Modificar">
+    <Page title="Trabajo">
       <StepperManage
         title="Añadir Area"
         open={open}
@@ -65,12 +70,12 @@ const Area = () => {
         <Breadcrumbs
           link={[
             { name: 'Gestionar', href: '/dashboard/manage/locations' },
-            { name: params.location, href: `/dashboard/manage/${params.location}` },
-            { name: params.area, href: `/dashboard/manage/${params.location}/${params.area}` },
+            { name: location, href: `/dashboard/manage/${location}` },
+            { name: area, href: `/dashboard/manage/${location}/${area}` },
             {},
           ]}
         />
-        <Media data={data} loading={loading} step="area" hrefs={params} />
+        <Media data={data} loading={loading} step="area" hrefs={{ location, area }} />
       </Container>
     </Page>
   );

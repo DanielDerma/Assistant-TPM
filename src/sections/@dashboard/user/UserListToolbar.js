@@ -31,12 +31,12 @@ const SearchStyle = styled(OutlinedInput)(({ theme }) => ({
 
 UserListToolbar.propTypes = {
   numSelected: PropTypes.number,
-  filterName: PropTypes.string,
-  onFilterName: PropTypes.func,
+  filterLocation: PropTypes.string,
+  onFilterLocation: PropTypes.func,
   onOpenFilter: PropTypes.func,
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName, onOpenFilter }) {
+export default function UserListToolbar({ numSelected, filterLocation, onFilterLocation, onOpenFilter }) {
   return (
     <RootStyle
       sx={{
@@ -52,8 +52,8 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
         </Typography>
       ) : (
         <SearchStyle
-          value={filterName}
-          onChange={onFilterName}
+          value={filterLocation}
+          onChange={onFilterLocation}
           placeholder="Search user..."
           startAdornment={
             <InputAdornment position="start">

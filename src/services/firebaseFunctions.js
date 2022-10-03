@@ -1,5 +1,3 @@
-import uniqid from 'uniqid';
-
 // firebase
 import { collection, collectionGroup, doc, getDocs, query, setDoc, Timestamp } from 'firebase/firestore';
 import { getDownloadURL, uploadBytes, ref } from 'firebase/storage';
@@ -13,6 +11,7 @@ export const getLocations = async () => {
 };
 
 export const getFeed = async (step, values) => {
+  console.log(step, values, 'infoo');
   const { location, area, workspace } = values;
 
   if (step === null) {
@@ -23,19 +22,21 @@ export const getFeed = async (step, values) => {
   }
 
   if (step === 'location') {
-    const docRef = query(collection(firestore, 'locations', location, 'area'));
+    const docRef = query(collection(firestore, 'locations', location.id, 'area'));
     const snapshot = await getDocs(docRef);
     const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     return data;
   }
   if (step === 'area') {
-    const docRef = query(collection(firestore, 'locations', location, 'area', area, 'workspace'));
+    const docRef = query(collection(firestore, 'locations', location.id, 'area', area.id, 'workspace'));
     const snapshot = await getDocs(docRef);
     const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     return data;
   }
   if (step === 'workspace') {
-    const docRef = query(collection(firestore, 'locations', location, 'area', area, 'workspace', workspace, 'system'));
+    const docRef = query(
+      collection(firestore, 'locations', location.id, 'area', area.id, 'workspace', workspace.id, 'system')
+    );
     const snapshot = await getDocs(docRef);
     const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     return data;
@@ -55,7 +56,18 @@ export const createError = async (values) => {
   } = values;
 
   const refDoc = doc(
-    collection(firestore, 'locations', location, 'area', area, 'workspace', workspace, 'system', system, 'errors')
+    collection(
+      firestore,
+      'locations',
+      location.id,
+      'area',
+      area.id,
+      'workspace',
+      workspace.id,
+      'system',
+      system.id,
+      'errors'
+    )
   );
 
   const pathImg = `${type}-errors/${refDoc.id}`;
@@ -66,24 +78,18 @@ export const createError = async (values) => {
   const dateAndTime = Timestamp.fromDate(dateAndTimeNoFirebase.toDate());
 
   await setDoc(refDoc, {
+    location: location.title,
+    area: area.title,
+    workspace: workspace.title,
+    system: system.title,
     dateAndTime,
     anomaly,
     description,
-    imageUrl,
+    image: imageUrl,
     type,
   });
 
   return refDoc.id;
-};
-
-export const getErrors = async (values) => {
-  const { location, area, workspace, system } = values;
-  const docRef = query(
-    collection(firestore, 'locations', location, 'area', area, 'workspace', workspace, 'system', system, 'errors')
-  );
-  const snapshot = await getDocs(docRef);
-  const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  return data;
 };
 
 export const createFromLocation = async (values) => {
@@ -228,12 +234,13 @@ export const createFromSystem = async (values) => {
   };
 };
 
-export const getSubCollectionErrors = async (location) => {
-  // collecion group erros if parent is 'location'
-  const locationErrors = await getDocs(collectionGroup(firestore, 'errors', where('parent', '==', location)));
-
+export const getSubCollectionErrors = async () => {
   const querySnapshot = await getDocs(collectionGroup(firestore, 'errors'));
-  const data = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+  const data = querySnapshot.docs.map((doc) => {
+    const date = doc.data().dateAndTime.toDate().toLocaleDateString('es-ES');
+    return { ...doc.data(), dateAndTime: date, id: doc.id };
+  });
 
   return data;
 };

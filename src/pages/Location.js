@@ -26,14 +26,14 @@ const steps = [
 ];
 
 const Modify = () => {
-  const params = useParams();
+  const { location } = useParams();
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useDataManage('location', params); // object bc destructure
+  const { data, loading } = useDataManage('location', { location: { id: location } }); // object bc destructure
 
   const handleCreateArea = async (values) => {
     try {
-      const elem = await createFromArea({ ...values, locationId: params.location });
+      const elem = await createFromArea({ ...values, locationId: location });
       console.log(elem);
       return elem;
     } catch (error) {
@@ -51,7 +51,7 @@ const Modify = () => {
   };
 
   return (
-    <Page name="Modificar">
+    <Page title="Área">
       <StepperManage title="Añadir Area" open={open} onClose={handleClose} steps={steps} onAdd={handleCreateArea} />
       <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
@@ -63,11 +63,11 @@ const Modify = () => {
         <Breadcrumbs
           link={[
             { name: 'Gestionar', href: '/dashboard/manage/locations' },
-            { name: params.location, href: `/dashboard/manage/${params.location}` },
+            { name: location, href: `/dashboard/manage/${location}` },
             {},
           ]}
         />
-        <Media data={data} loading={loading} step="location" hrefs={params} />
+        <Media data={data} loading={loading} step="location" hrefs={{ location }} />
       </Container>
     </Page>
   );
