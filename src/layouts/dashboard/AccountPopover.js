@@ -2,17 +2,23 @@ import { useRef, useState } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, MenuItem, Avatar, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+
 // components
 import MenuPopover from '../../components/MenuPopover';
 // mocks_
 import account from '../../_mock/account';
+import useAuth from '../../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+  const { logout, infoUser } = useAuth();
   const anchorRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(null);
 
@@ -22,6 +28,10 @@ export default function AccountPopover() {
 
   const handleClose = () => {
     setOpen(null);
+  };
+  const LogOut = async () => {
+    await logout();
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -63,16 +73,16 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {`${infoUser.fname} ${infoUser.lname}`}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {account.email}
+            {infoUser.email}
           </Typography>
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={LogOut} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </MenuPopover>

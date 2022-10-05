@@ -45,7 +45,6 @@ export default function LoginForm() {
   const onSubmit = async () => {
     const { email, password } = methods.getValues();
     await login(email, password);
-    navigate('/dashboard/app', { replace: true });
   };
 
   return (

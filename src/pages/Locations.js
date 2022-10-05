@@ -1,12 +1,12 @@
 import { Button, Stack, Typography } from '@mui/material';
 import { Container } from '@mui/system';
 import { useEffect, useState } from 'react';
-import { createFromLocation, getLocations } from '../services/firebaseFunctions';
+import { getLocations } from '../services/firebaseFunctions';
 import Page from '../components/Page';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Media from '../components/Media';
 import Iconify from '../components/Iconify';
-import StepperManage from '../components/StepperManage';
+import StepperManage from '../components/StepperManageP';
 
 const steps = [
   {
@@ -41,14 +41,14 @@ const Modify = () => {
   }, []);
 
   const handleCreateCompany = async (values) => {
-    try {
-      const elem = createFromLocation(values);
-      console.log(elem);
-      return elem;
-    } catch (error) {
-      console.log(error);
-      return error;
-    }
+    // try {
+    //   const elem = createFromLocation(values);
+    //   console.log(elem);
+    //   return elem;
+    // } catch (error) {
+    //   console.log(error);
+    //   return error;
+    // }
   };
 
   const handleOpen = () => {

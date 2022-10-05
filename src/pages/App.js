@@ -1,7 +1,7 @@
 import { Box, Container, Divider, FormControl, Grid, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useState } from 'react';
-
+import PropTypes from 'prop-types';
 import { faker } from '@faker-js/faker';
 import Iconify from '../components/Iconify';
 
@@ -13,7 +13,7 @@ import {
 } from '../sections/@dashboard/app';
 import Page from '../components/Page';
 
-const App = () => {
+const App = ({ isAdmin }) => {
   const theme = useTheme();
   const [input, setInput] = useState(10);
   const handleInput = (event) => setInput(event.target.value);
@@ -22,25 +22,31 @@ const App = () => {
       <Page title="Dashboard">
         <Container maxWidth="xl">
           <Box>
-            <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} sx={{ mb: 5 }}>
-              <Typography variant="h4">Selecciona una Compañía:</Typography>
-              <FormControl sx={{ minWidth: 250 }}>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select-label"
-                  variant="standard"
-                  sx={{ fontSize: 20 }}
-                  label="Compañía"
-                  value={input}
-                  onChange={handleInput}
-                >
-                  <MenuItem value={10}>Tortillería la Salle</MenuItem>
-                  <MenuItem value={20}>Empresa 1</MenuItem>
-                  <MenuItem value={30}>Empresa 2</MenuItem>
-                  <MenuItem value={40}>Empresa 3</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
+            {isAdmin ? (
+              <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} sx={{ mb: 5 }}>
+                <Typography variant="h4">Selecciona una Compañía:</Typography>
+                <FormControl sx={{ minWidth: 250 }}>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select-label"
+                    variant="standard"
+                    sx={{ fontSize: 20 }}
+                    label="Compañía"
+                    value={input}
+                    onChange={handleInput}
+                  >
+                    <MenuItem value={10}>Tortillería la Salle</MenuItem>
+                    <MenuItem value={20}>Empresa 1</MenuItem>
+                    <MenuItem value={30}>Empresa 2</MenuItem>
+                    <MenuItem value={40}>Empresa 3</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
+            ) : (
+              <Typography variant="h4" mb={5}>
+                Tortillería La Salle
+              </Typography>
+            )}
           </Box>
           <Grid container spacing={3}>
             <Grid item xs={12} md={12}>
@@ -122,32 +128,40 @@ const App = () => {
                 chartColors={[theme.palette.error.main, theme.palette.info.main, theme.palette.success.main]}
               />
             </Grid>
-            <Grid item xs={12} md={12} lg={12} sx={{ my: 2 }}>
-              <Divider />
-            </Grid>
+            {isAdmin && (
+              <>
+                <Grid item xs={12} md={12} lg={12} sx={{ my: 2 }}>
+                  <Divider />
+                </Grid>
 
-            <Grid item xs={12} md={12} lg={12}>
-              <AppConversionRates
-                title="Numero de Tarjetas por Compañía en total"
-                chartData={[
-                  { label: 'Empresa 1', value: 400 },
-                  { label: 'Empresa 2', value: 430 },
-                  { label: 'Empresa 3', value: 448 },
-                  { label: 'Empresa 4', value: 470 },
-                  { label: 'Empresa 5', value: 540 },
-                  { label: 'Empresa 6', value: 580 },
-                  { label: 'Empresa 7', value: 690 },
-                  { label: 'Empresa 8', value: 1100 },
-                  { label: 'Empresa 9', value: 1200 },
-                  { label: 'Empresa 10', value: 1380 },
-                ]}
-              />
-            </Grid>
+                <Grid item xs={12} md={12} lg={12}>
+                  <AppConversionRates
+                    title="Numero de Tarjetas por Compañía en total"
+                    chartData={[
+                      { label: 'Empresa 1', value: 400 },
+                      { label: 'Empresa 2', value: 430 },
+                      { label: 'Empresa 3', value: 448 },
+                      { label: 'Empresa 4', value: 470 },
+                      { label: 'Empresa 5', value: 540 },
+                      { label: 'Empresa 6', value: 580 },
+                      { label: 'Empresa 7', value: 690 },
+                      { label: 'Empresa 8', value: 1100 },
+                      { label: 'Empresa 9', value: 1200 },
+                      { label: 'Empresa 10', value: 1380 },
+                    ]}
+                  />
+                </Grid>
+              </>
+            )}
           </Grid>
         </Container>
       </Page>
     </div>
   );
+};
+
+App.propTypes = {
+  isAdmin: PropTypes.bool,
 };
 
 export default App;

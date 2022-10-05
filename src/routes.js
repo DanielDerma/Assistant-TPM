@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
+import ManageLayout from './layouts/ManageLayout';
 //
 import Filter from './pages/Filter';
 import Login from './pages/Login';
@@ -19,7 +20,7 @@ import useAuth from './hooks/useAuth';
 // ----------------------------------------------------------------------
 
 export default function Router() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   return useRoutes([
     {
@@ -33,10 +34,11 @@ export default function Router() {
         { path: 'add', element: <Add /> },
         { path: 'filter', element: <Filter /> },
         { path: 'export', element: <Export /> },
-        { path: 'app', element: <App /> },
-        { path: 'admin', element: <Admin /> },
+        { path: 'app', element: <App isAdmin={isAdmin} /> },
+        { path: 'admin', element: isAdmin ? <Admin /> : <Navigate to="/404" /> },
         {
           path: 'manage',
+          element: isAdmin ? <ManageLayout /> : <Navigate to="/404" />,
           children: [
             { element: <Navigate to="/dashboard/manage/locations" replace />, index: true },
             { path: 'locations', element: <Locations /> },
@@ -49,13 +51,13 @@ export default function Router() {
     },
     {
       path: 'login',
-      element: <Login />,
+      element: !isAuthenticated ? <Login /> : <Navigate to="/dashboard/add" />,
     },
     {
       path: '/',
       element: <LogoOnlyLayout />,
       children: [
-        { path: '/', element: <Navigate to="/login" /> },
+        { path: '/', element: <Navigate to="/dashboard/add" /> },
         { path: '404', element: <NotFound /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

@@ -1,7 +1,25 @@
 // firebase
-import { collection, collectionGroup, doc, getDocs, query, setDoc, Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  collectionGroup,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  Timestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import { getDownloadURL, uploadBytes, ref } from 'firebase/storage';
+import { listToObject } from '../utils';
 import { firestore, storage } from './firebaseClient';
+
+export const getCurrentUser = async (uid) => {
+  const userRef = doc(firestore, 'user', uid);
+  const userSnap = await getDoc(userRef);
+  return userSnap.data();
+};
 
 export const getLocations = async () => {
   const docRef = query(collection(firestore, 'locations'));
@@ -11,7 +29,6 @@ export const getLocations = async () => {
 };
 
 export const getFeed = async (step, values) => {
-  console.log(step, values, 'infoo');
   const { location, area, workspace } = values;
 
   if (step === null) {
@@ -92,53 +109,13 @@ export const createError = async (values) => {
   return refDoc.id;
 };
 
-export const createFromLocation = async (values) => {
-  const { location, area, workspace, system } = values;
+export const createLocationRefs = async (values) => {
+  const locationRef = doc(collection(firestore, 'locationRefs'));
+  const valuesObj = listToObject(values);
 
-  const locationRef = doc(collection(firestore, 'locations'));
+  await setDoc(locationRef, valuesObj);
 
-  const locationPathImg = `location/${locationRef}`;
-  const locationStorageRef = ref(storage, locationPathImg);
-  await uploadBytes(locationStorageRef, location.image);
-  const locationImage = await getDownloadURL(locationStorageRef);
-
-  await setDoc(locationRef, { ...location, image: locationImage });
-
-  const areaRef = doc(collection(firestore, 'locations', locationRef.id, 'area'));
-
-  const areaPathImg = `area/${areaRef}`;
-  const areaStorageRef = ref(storage, areaPathImg);
-  await uploadBytes(areaStorageRef, area.image);
-  const areaImage = await getDownloadURL(areaStorageRef);
-
-  await setDoc(areaRef, { ...area, image: areaImage });
-
-  const workspaceRef = doc(collection(firestore, 'locations', locationRef.id, 'area', areaRef.id, 'workspace'));
-
-  const workspacePathImg = `workspace/${workspaceRef}`;
-  const workspaceStorageRef = ref(storage, workspacePathImg);
-  await uploadBytes(workspaceStorageRef, workspace.image);
-  const workspaceImage = await getDownloadURL(workspaceStorageRef);
-
-  await setDoc(workspaceRef, { ...workspace, image: workspaceImage });
-
-  const systemRef = doc(
-    collection(firestore, 'locations', locationRef.id, 'area', areaRef.id, 'workspace', workspaceRef.id, 'system')
-  );
-
-  const systemPathImg = `system/${systemRef}`;
-  const systemStorageRef = ref(storage, systemPathImg);
-  await uploadBytes(systemStorageRef, system.image);
-  const systemImage = await getDownloadURL(systemStorageRef);
-
-  await setDoc(systemRef, { ...system, image: systemImage });
-
-  return {
-    location: locationRef.id,
-    area: areaRef.id,
-    workspace: workspaceRef.id,
-    system: systemRef.id,
-  };
+  return locationRef.id;
 };
 
 export const createFromArea = async (values) => {
@@ -186,7 +163,7 @@ export const createFromWorkspace = async (values) => {
 
   const workspaceRef = doc(collection(firestore, 'locations', locationId, 'area', areaId, 'workspace'));
 
-  const workspacePathImg = `workspace/${workspaceRef}`;
+  const workspacePathImg = `workspace/${workspaceRef.id}`;
   const workspaceStorageRef = ref(storage, workspacePathImg);
   await uploadBytes(workspaceStorageRef, workspace.image);
   const workspaceImage = await getDownloadURL(workspaceStorageRef);
@@ -197,7 +174,7 @@ export const createFromWorkspace = async (values) => {
     collection(firestore, 'locations', locationId, 'area', areaId, 'workspace', workspaceRef.id, 'system')
   );
 
-  const systemPathImg = `system/${systemRef}`;
+  const systemPathImg = `system/${systemRef.id}`;
   const systemStorageRef = ref(storage, systemPathImg);
   await uploadBytes(systemStorageRef, system.image);
   const systemImage = await getDownloadURL(systemStorageRef);
@@ -219,7 +196,7 @@ export const createFromSystem = async (values) => {
     collection(firestore, 'locations', locationId, 'area', areaId, 'workspace', workspaceId, 'system')
   );
 
-  const systemPathImg = `system/${systemRef}`;
+  const systemPathImg = `system/${systemRef.id}`;
   const systemStorageRef = ref(storage, systemPathImg);
   await uploadBytes(systemStorageRef, system.image);
   const systemImage = await getDownloadURL(systemStorageRef);
@@ -243,4 +220,53 @@ export const getSubCollectionErrors = async () => {
   });
 
   return data;
+};
+
+export const getUsers = async () => {
+  const querySnapshot = await getDocs(collection(firestore, 'user'));
+
+  const data = querySnapshot.docs.map((doc) => doc.data());
+
+  return data;
+};
+
+export const createUser = async (values, currentUser) => {
+  const docRef = doc(firestore, 'user', values.email);
+  try {
+    const idToken = await currentUser.getIdToken();
+    await fetch('https://us-central1-project2-5eb0d.cloudfunctions.net/app/users', {
+      method: 'POST',
+      body: JSON.stringify(values),
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${idToken}`,
+      }),
+    });
+    await setDoc(docRef, values);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const updateUser = async (email, values) => {
+  const docRef = doc(firestore, 'user', email);
+  try {
+    await updateDoc(docRef, values);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const deleteUser = async (email) => {
+  const docRef = doc(firestore, 'user', email);
+  try {
+    await deleteDoc(docRef);
+    await fetch('http://127.0.0.1:5001/project2-5eb0d/us-central1/app/users/cesar@gmail.com', {
+      method: 'DELETE',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(email),
+    });
+  } catch (err) {
+    console.error(err);
+  }
 };

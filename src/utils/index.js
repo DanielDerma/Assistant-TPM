@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 export const getRoutes = (step, values) => {
   const { location, area, workspace, id } = values;
 
@@ -14,4 +16,12 @@ export const getRoutes = (step, values) => {
     return `/dashboard/manage/${location}/${area}/${workspace}/${id}`;
   }
   return null;
+};
+
+export const listToObject = (list) => {
+  const obj = {};
+  list.forEach((item, index) => {
+    obj[`subItem${index}`] = { uid: uuidv4, item };
+  });
+  return obj;
 };

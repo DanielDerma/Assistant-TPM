@@ -1,4 +1,14 @@
-import { Card, CardActionArea, CardContent, CardMedia, Grid, Skeleton, Typography } from '@mui/material';
+import {
+  Button,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Grid,
+  Skeleton,
+  Typography,
+} from '@mui/material';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -43,9 +53,9 @@ const Media = ({ data, loading, step, hrefs }) => {
               to={hrefs ? getRoutes(step, { ...hrefs, id }) : ''}
               sx={{
                 boxShadow: 0,
-                bgcolor: '#f2f2f2',
               }}
             >
+              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={title} />
               <CardContent>
                 <Typography component="h2" variant="h4">
                   {title}
@@ -54,7 +64,6 @@ const Media = ({ data, loading, step, hrefs }) => {
                   {description}
                 </Typography>
               </CardContent>
-              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={title} />
             </CardActionArea>
           </Card>
         </Grid>
