@@ -40,5 +40,4 @@ const navConfigAdmin = [
     icon: getIcon('eva:settings-fill'),
   },
 ];
-
 export { navConfigTechnical, navConfigAdmin };

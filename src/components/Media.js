@@ -45,7 +45,7 @@ const Media = ({ data, loading, step, hrefs }) => {
   }
   return (
     <Grid container spacing={4}>
-      {data.map(({ id, title, description, image }) => (
+      {data.map(({ id, company, description, image }) => (
         <Grid key={id} item xs={12} md={6}>
           <Card>
             <CardActionArea
@@ -55,10 +55,10 @@ const Media = ({ data, loading, step, hrefs }) => {
                 boxShadow: 0,
               }}
             >
-              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={title} />
+              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={company} />
               <CardContent>
                 <Typography component="h2" variant="h4">
-                  {title}
+                  {company}
                 </Typography>
                 <Typography variant="subtitle2" paragraph>
                   {description}

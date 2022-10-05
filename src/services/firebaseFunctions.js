@@ -1,5 +1,6 @@
 // firebase
 import {
+  addDoc,
   collection,
   collectionGroup,
   deleteDoc,
@@ -22,7 +23,7 @@ export const getCurrentUser = async (uid) => {
 };
 
 export const getLocations = async () => {
-  const docRef = query(collection(firestore, 'locations'));
+  const docRef = query(collection(firestore, 'companies'));
   const snapshot = await getDocs(docRef);
   const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   return data;
@@ -116,6 +117,25 @@ export const createLocationRefs = async (values) => {
   await setDoc(locationRef, valuesObj);
 
   return locationRef.id;
+};
+
+export const createLocation = async (values) => {
+  const { stepper, ...rest } = values;
+  const companyRef = doc(collection(firestore, 'companies'));
+
+  const areaPathImg = `companies/${companyRef.id}`;
+  const areaStorageRef = ref(storage, areaPathImg);
+  await uploadBytes(areaStorageRef, rest.image);
+  const image = await getDownloadURL(areaStorageRef);
+
+  await setDoc(companyRef, { ...rest, image });
+
+  const locationRef = doc(firestore, 'locations', companyRef.id);
+  const valuesObj = listToObject(stepper);
+
+  await setDoc(locationRef, valuesObj);
+
+  return { locationRef: locationRef.id, companyRef: companyRef.id };
 };
 
 export const createFromArea = async (values) => {

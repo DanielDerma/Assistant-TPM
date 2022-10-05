@@ -19,9 +19,9 @@ import PropTypes from 'prop-types';
 
 // components
 import Image from 'mui-image';
-import Dropzone from './Dropzone';
-import StepperForm from './StepperForm';
-import { createError } from '../services/firebaseFunctions';
+import Dropzone from '../Dropzone';
+import StepperForm from '../StepperForm';
+import { createError } from '../../services/firebaseFunctions';
 
 const FormAdd = ({ onClose, open, title }) => {
   const [imgPreview, setImgPreview] = useState('');

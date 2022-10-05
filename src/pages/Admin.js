@@ -22,9 +22,9 @@ import Iconify from '../components/Iconify';
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
-import FormAddNewUser from '../components/FormAddNewUser';
-import FormEditUser from '../components/FormEditUser';
-import FormDeleteUser from '../components/FormDeleteUser';
+import FormAddNewUser from '../components/ModalForm/AddUser';
+import FormEditUser from '../components/ModalForm/EditUser';
+import FormDeleteUser from '../components/ModalForm/DeleteUser';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/admin';
 // mock
 import { getUsers } from '../services/firebaseFunctions';

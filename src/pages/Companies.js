@@ -6,7 +6,7 @@ import Page from '../components/Page';
 import Breadcrumbs from '../components/Breadcrumbs';
 import Media from '../components/Media';
 import Iconify from '../components/Iconify';
-import StepperManage from '../components/StepperManageP';
+import AddCompany from '../components/ModalForm/AddCompany';
 
 const steps = [
   {
@@ -34,10 +34,14 @@ const Modify = () => {
 
   useEffect(() => {
     setLoading(true);
-    getLocations().then((data) => {
-      setData(data);
-      setLoading(false);
-    });
+    getLocations()
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   const handleCreateCompany = async (values) => {
@@ -61,13 +65,7 @@ const Modify = () => {
 
   return (
     <Page title="Modificar">
-      <StepperManage
-        title="Añadir Compañía"
-        open={open}
-        onClose={handleClose}
-        steps={steps}
-        onAdd={handleCreateCompany}
-      />
+      <AddCompany title="Añadir Compañía" open={open} onClose={handleClose} steps={steps} onAdd={handleCreateCompany} />
       <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4">Compañía</Typography>

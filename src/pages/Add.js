@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Grid, Container, Typography } from '@mui/material';
-import FormAdd from '../components/FormAdd';
+import FormAdd from '../components/ModalForm/AddCard';
 // @mui
 // components
 import Page from '../components/Page';

@@ -11,10 +11,8 @@ import Export from './pages/Export';
 import Add from './pages/Add';
 import App from './pages/App';
 import Admin from './pages/Admin';
-import Locations from './pages/Locations';
-import Location from './pages/Location';
-import Area from './pages/Area';
-import Workspace from './pages/Workspace';
+import Companies from './pages/Companies';
+import SubItems from './pages/SubItems';
 import useAuth from './hooks/useAuth';
 
 // ----------------------------------------------------------------------
@@ -40,11 +38,8 @@ export default function Router() {
           path: 'manage',
           element: isAdmin ? <ManageLayout /> : <Navigate to="/404" />,
           children: [
-            { element: <Navigate to="/dashboard/manage/locations" replace />, index: true },
-            { path: 'locations', element: <Locations /> },
-            { path: ':location', element: <Location /> },
-            { path: ':location/:area', element: <Area /> },
-            { path: ':location/:area/:workspace', element: <Workspace /> },
+            { element: <Companies />, index: true },
+            { path: '*', element: <SubItems /> },
           ],
         },
       ],

@@ -1,33 +1,20 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
-import {
-  Button,
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
-import { deleteUser } from '../services/firebaseFunctions';
+import { Button, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { deleteUser } from '../../services/firebaseFunctions';
 
 TableDelete.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  preview: PropTypes.object
-}
+  preview: PropTypes.object,
+};
 
-
-export default function TableDelete({
-  open,
-  onClose,
-  preview,
-}) {
+export default function TableDelete({ open, onClose, preview }) {
   const [confirm, setConfirm] = useState(true);
 
   const handleConfirm = (e) => {
-    if (e === "eliminar") {
+    if (e === 'eliminar') {
       setConfirm(false);
     } else {
       setConfirm(true);
@@ -48,8 +35,7 @@ export default function TableDelete({
         <DialogTitle>Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Confirma escribiendo <strong>&quot;eliminar&quot;</strong> en el
-            siguiente campo
+            Confirma escribiendo <strong>&quot;eliminar&quot;</strong> en el siguiente campo
           </DialogContentText>
           <TextField
             autoFocus

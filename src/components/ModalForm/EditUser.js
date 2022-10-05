@@ -1,20 +1,31 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  Button,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { LoadingButton } from '@mui/lab';
-import { getLocations, updateUser } from '../services/firebaseFunctions';
+import { getLocations, updateUser } from '../../services/firebaseFunctions';
 
 TableAdd.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  preview: PropTypes.object
+  preview: PropTypes.object,
 };
 
 export default function TableAdd({ open, onClose, preview }) {
   const [loading, setLoading] = useState(false);
-  const [menuItems, setMenuItems] = useState([])
+  const [menuItems, setMenuItems] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -22,8 +33,7 @@ export default function TableAdd({ open, onClose, preview }) {
       setMenuItems(data);
       setLoading(false);
     });
-
-  },[])
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -59,7 +69,7 @@ export default function TableAdd({ open, onClose, preview }) {
 
   useEffect(() => {
     if (preview) {
-      const {email, password, ...rest} = preview; //eslint-disable-line
+      const { email, password, ...rest } = preview; //eslint-disable-line
       formik.setValues(rest, false);
     }
   }, [preview]); //eslint-disable-line
@@ -67,53 +77,53 @@ export default function TableAdd({ open, onClose, preview }) {
   return (
     <div>
       <Dialog open={open} onClose={handleCloseWithReset}>
-          <DialogTitle>Editar Usuario</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              id="nombre"
-              label="Nombres"
-              type="text"
-              fullWidth
-              variant="standard"
-              error={formik.touched.fname && Boolean(formik.errors.fname)}
-              helperText={formik.touched.fname && formik.errors.fname}
-              {...formik.getFieldProps('fname')}
-            />
-            <TextField
-              margin="dense"
-              id="lname"
-              label="Apellidos"
-              type="text"
-              fullWidth
-              variant="standard"
-              error={formik.touched.lname && Boolean(formik.errors.lname)}
-              helperText={formik.touched.lname && formik.errors.lname}
-              {...formik.getFieldProps('lname')}
-            />
-            <TextField
-              margin="dense"
-              id="age"
-              label="Edad"
-              type="number"
-              fullWidth
-              variant="standard"
-              error={formik.touched.age && Boolean(formik.errors.age)}
-              helperText={formik.touched.age && formik.errors.age}
-              {...formik.getFieldProps('age')}
-            />
-            <TextField
-              margin="dense"
-              id="contact"
-              label="Contacto"
-              type="number"
-              fullWidth
-              variant="standard"
-              error={formik.touched.contactAdd && Boolean(formik.errors.contactAdd)}
-              helperText={formik.touched.contactAdd && formik.errors.contactAdd}
-              {...formik.getFieldProps('contactAdd')}
-            />
-            <FormControl fullWidth variant="standard">
+        <DialogTitle>Editar Usuario</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            id="nombre"
+            label="Nombres"
+            type="text"
+            fullWidth
+            variant="standard"
+            error={formik.touched.fname && Boolean(formik.errors.fname)}
+            helperText={formik.touched.fname && formik.errors.fname}
+            {...formik.getFieldProps('fname')}
+          />
+          <TextField
+            margin="dense"
+            id="lname"
+            label="Apellidos"
+            type="text"
+            fullWidth
+            variant="standard"
+            error={formik.touched.lname && Boolean(formik.errors.lname)}
+            helperText={formik.touched.lname && formik.errors.lname}
+            {...formik.getFieldProps('lname')}
+          />
+          <TextField
+            margin="dense"
+            id="age"
+            label="Edad"
+            type="number"
+            fullWidth
+            variant="standard"
+            error={formik.touched.age && Boolean(formik.errors.age)}
+            helperText={formik.touched.age && formik.errors.age}
+            {...formik.getFieldProps('age')}
+          />
+          <TextField
+            margin="dense"
+            id="contact"
+            label="Contacto"
+            type="number"
+            fullWidth
+            variant="standard"
+            error={formik.touched.contactAdd && Boolean(formik.errors.contactAdd)}
+            helperText={formik.touched.contactAdd && formik.errors.contactAdd}
+            {...formik.getFieldProps('contactAdd')}
+          />
+          <FormControl fullWidth variant="standard">
             <InputLabel id="company">Compañia</InputLabel>
             <Select
               labelId="company"
@@ -139,13 +149,13 @@ export default function TableAdd({ open, onClose, preview }) {
               ]}
             </Select>
           </FormControl>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseWithReset}>Cancel</Button>
-            <LoadingButton onClick={formik.handleSubmit} loading={loading}>
-              Añadir
-            </LoadingButton>
-          </DialogActions>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseWithReset}>Cancel</Button>
+          <LoadingButton onClick={formik.handleSubmit} loading={loading}>
+            Añadir
+          </LoadingButton>
+        </DialogActions>
       </Dialog>
     </div>
   );

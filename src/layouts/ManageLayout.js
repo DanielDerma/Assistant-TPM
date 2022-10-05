@@ -1,11 +1,10 @@
-import React from 'react'
+import React from 'react';
 import { Outlet } from 'react-router-dom';
 
-
 const ManageLayout = () => (
-    <div>
-      <Outlet />
-    </div>
-  )
+  <div>
+    <Outlet />
+  </div>
+);
 
-export default ManageLayout
+export default ManageLayout;

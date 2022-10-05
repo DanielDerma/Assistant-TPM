@@ -21,7 +21,7 @@ export const getRoutes = (step, values) => {
 export const listToObject = (list) => {
   const obj = {};
   list.forEach((item, index) => {
-    obj[`subItem${index}`] = { uid: uuidv4, item };
+    obj[`subItem${index}`] = { uid: uuidv4(), item };
   });
   return obj;
 };

@@ -15,13 +15,13 @@ import {
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { LoadingButton } from '@mui/lab';
-import { createUser, getLocations } from '../services/firebaseFunctions';
-import useAuth from '../hooks/useAuth';
+import { createUser, getLocations } from '../../services/firebaseFunctions';
+import useAuth from '../../hooks/useAuth';
 
 TableAdd.propTypes = {
   onClose: PropTypes.func,
   open: PropTypes.bool,
-}
+};
 
 export default function TableAdd({ open, onClose }) {
   const [loading, setLoading] = useState(false);
@@ -66,13 +66,16 @@ export default function TableAdd({ open, onClose }) {
       const password = Math.random().toString(36).slice(-8);
       const { id } = menuItems.find((item) => item.title === values.company);
 
-      createUser({ ...values, userCompany: id, password }, currentUser).then(() => {
-        handleCloseWithReset();
-      }).catch((err) => {
-        console.error(err);
-      }).finally(() => {
-        setLoading(false);
-      })
+      createUser({ ...values, userCompany: id, password }, currentUser)
+        .then(() => {
+          handleCloseWithReset();
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     },
   });
 
