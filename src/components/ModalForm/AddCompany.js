@@ -53,6 +53,8 @@ export default function FormDialog({ open, onClose, title }) {
     formik.setFieldValue('image', data);
   };
 
+  console.log(formik.values);
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth sx={{ minHeight: 700 }}>
       <DialogTitle>{title}</DialogTitle>

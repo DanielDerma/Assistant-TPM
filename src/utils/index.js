@@ -18,10 +18,12 @@ export const getRoutes = (step, values) => {
   return null;
 };
 
+// array of objects to object
 export const listToObject = (list) => {
   const obj = {};
-  list.forEach((item, index) => {
-    obj[`subItem${index}`] = { uid: uuidv4(), item };
-  });
+  list.forEach((item) => {
+    obj[item.id] = item;
+
+  })
   return obj;
 };

@@ -29,6 +29,19 @@ export const getLocations = async () => {
   return data;
 };
 
+export const getFeed2 = async (location) => {
+  try {
+    const docRef = query(collection(firestore, 'companies'));
+    const snapshot = await getDocs(docRef);
+    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.log(error);
+    return []
+  }
+};
+
 export const getFeed = async (step, values) => {
   const { location, area, workspace } = values;
 
@@ -132,6 +145,7 @@ export const createLocation = async (values) => {
 
   const locationRef = doc(firestore, 'locations', companyRef.id);
   const valuesObj = listToObject(stepper);
+  console.log({valuesObj, stepper});
 
   await setDoc(locationRef, valuesObj);
 

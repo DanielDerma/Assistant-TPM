@@ -44,17 +44,6 @@ const Modify = () => {
       });
   }, []);
 
-  const handleCreateCompany = async (values) => {
-    // try {
-    //   const elem = createFromLocation(values);
-    //   console.log(elem);
-    //   return elem;
-    // } catch (error) {
-    //   console.log(error);
-    //   return error;
-    // }
-  };
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -65,7 +54,7 @@ const Modify = () => {
 
   return (
     <Page title="Modificar">
-      <AddCompany title="Añadir Compañía" open={open} onClose={handleClose} steps={steps} onAdd={handleCreateCompany} />
+      <AddCompany title="Añadir Compañía" open={open} onClose={handleClose} steps={steps} />
       <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4">Compañía</Typography>

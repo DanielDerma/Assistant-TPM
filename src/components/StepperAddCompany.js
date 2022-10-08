@@ -6,7 +6,6 @@ import StepLabel from '@mui/material/StepLabel';
 import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
 import { TextField } from '@mui/material';
-import { createLocationRefs } from '../services/firebaseFunctions';
 
 const steps2 = [
   {
@@ -21,22 +20,29 @@ export default function VerticalLinearStepper({ onFinish }) {
   const [items, setItems] = React.useState([]);
   const [value, setValue] = React.useState('');
 
-  const randomId = () => Math.random().toString(36).slice(-8);
-
   const handleNext = () => {
-    const newItem = {
-      id: randomId(),
-      label: 'Subnivel',
-    };
-    setSteps((prev) => [...prev, newItem]);
-    setItems((prev) => [...prev, value]);
+    setSteps([
+      ...steps,
+      {
+        id: `subnivel${steps.length + 1} `,
+        label: 'Subnivel',
+      },
+    ]);
+    setItems([
+      ...items,
+      {
+        id: `subnivel${items.length}`,
+        label: value,
+      },
+    ]);
+
     setValue('');
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleFinish = () => {
+    onFinish([...items, { id: `subnivel${items.length + 1}`, label: value }]);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    onFinish([...items, value]);
   };
 
   return (
