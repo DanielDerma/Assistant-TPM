@@ -143,20 +143,22 @@ NavSection.propTypes = {
 };
 export default function NavSection({ navConfig, navConfig2, ...other }) {
   const { pathname } = useLocation();
-  const {isAdmin} = useAuth()
+  const { isAdmin } = useAuth();
 
   const match = (path) => (path ? !!matchPath({ path, end: false }, pathname) : false);
 
   return (
     <Box {...other}>
       <List disablePadding sx={{ p: 1 }}>
-        {isAdmin && <>{navConfig2.map((item) => (
-          <NavItem key={item.title} item={item} active={match} />
-        ))}
-        <Divider sx={{ my: 2 }} />
-        
-        </>}
-        
+        {isAdmin && (
+          <>
+            {navConfig2.map((item) => (
+              <NavItem key={item.title} item={item} active={match} />
+            ))}
+            <Divider sx={{ my: 2 }} />
+          </>
+        )}
+
         {navConfig.map((item) => (
           <NavItem key={item.title} item={item} active={match} />
         ))}

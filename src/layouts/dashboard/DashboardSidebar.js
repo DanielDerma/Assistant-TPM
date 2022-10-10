@@ -29,10 +29,12 @@ const RootStyle = styled('div')(({ theme }) => ({
 
 const AccountStyle = styled('div')(({ theme }) => ({
   display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
   alignItems: 'center',
+  textAlign: 'center',
+  gap: theme.spacing(1.5),
   padding: theme.spacing(2, 2.5),
-  borderRadius: Number(theme.shape.borderRadius) * 1.5,
-  backgroundColor: theme.palette.grey[500_12],
 }));
 
 // ----------------------------------------------------------------------
@@ -62,15 +64,15 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
+      <Box sx={{ py: 4, display: 'inline-flex', justifyContent: 'center' }}>
         <Logo />
       </Box>
 
-      <Box sx={{ mb: 5, mx: 2.5 }}>
+      <Box sx={{ mb: 2, mx: 2.5 }}>
         <Link underline="none" component={RouterLink} to="#">
           <AccountStyle>
-            <Avatar src={account.photoURL} alt="photoURL" />
-            <Box sx={{ ml: 2 }}>
+            <Avatar src={account.photoURL} alt="photoURL" sx={{ width: 90, height: 90 }} />
+            <Box>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
                 {`${infoUser.fname} ${infoUser.lname}`}
               </Typography>
@@ -109,8 +111,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
           PaperProps={{
             sx: {
               width: DRAWER_WIDTH,
-              bgcolor: 'background.default',
-              borderRightStyle: 'dashed',
+              bgcolor: 'white',
+              border: 'none',
             },
           }}
         >
