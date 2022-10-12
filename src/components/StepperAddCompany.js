@@ -7,6 +7,12 @@ import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
 import { TextField } from '@mui/material';
 
+const initialItems = [
+  {
+    id: 'company',
+    label: 'Compañia',
+  },
+];
 const steps2 = [
   {
     label: 'Subnivel',
@@ -14,10 +20,10 @@ const steps2 = [
   },
 ];
 
-export default function VerticalLinearStepper({ onFinish }) {
+export default function StepperAddCompany({ onFinish }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [steps, setSteps] = React.useState(steps2);
-  const [items, setItems] = React.useState([]);
+  const [items, setItems] = React.useState(initialItems);
   const [value, setValue] = React.useState('');
 
   const handleNext = () => {
@@ -41,8 +47,8 @@ export default function VerticalLinearStepper({ onFinish }) {
   };
 
   const handleFinish = () => {
-    onFinish([...items, { id: `subnivel${items.length + 1}`, label: value }]);
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    onFinish([...items, { id: `subnivel${items.length}`, label: value }]);
+    setActiveStep(-1);
   };
 
   return (
@@ -57,6 +63,7 @@ export default function VerticalLinearStepper({ onFinish }) {
                 label="Nombre"
                 variant="standard"
                 value={value}
+                fullWidth
                 onChange={(event) => setValue(event.target.value)}
               />
               <Box sx={{ mb: 2 }}>

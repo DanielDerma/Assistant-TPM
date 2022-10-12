@@ -1,20 +1,8 @@
-import {
-  Button,
-  Card,
-  CardActionArea,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Grid,
-  Skeleton,
-  Typography,
-} from '@mui/material';
-import React from 'react';
+import { Card, CardActionArea, CardContent, CardMedia, Grid, Skeleton, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { getRoutes } from '../utils';
 
-const Media = ({ data, loading, step, hrefs }) => {
+const Media = ({ data, pathname, loading }) => {
   if (loading) {
     return (
       <Grid container spacing={4}>
@@ -45,20 +33,20 @@ const Media = ({ data, loading, step, hrefs }) => {
   }
   return (
     <Grid container spacing={4}>
-      {data.map(({ id, company, description, image }) => (
+      {data.map(({ id, title, description, image }) => (
         <Grid key={id} item xs={12} md={6}>
           <Card>
             <CardActionArea
               component={Link}
-              to={hrefs ? getRoutes(step, { ...hrefs, id }) : ''}
+              to={`${pathname}/${id}`}
               sx={{
                 boxShadow: 0,
               }}
             >
-              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={company} />
+              <CardMedia sx={{ height: 350, objectFit: 'cover' }} component="img" src={image} alt={title} />
               <CardContent>
                 <Typography component="h2" variant="h4">
-                  {company}
+                  {title}
                 </Typography>
                 <Typography variant="subtitle2" paragraph>
                   {description}
@@ -75,8 +63,7 @@ const Media = ({ data, loading, step, hrefs }) => {
 Media.propTypes = {
   data: PropTypes.array.isRequired,
   loading: PropTypes.bool.isRequired,
-  step: PropTypes.string,
-  hrefs: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+  pathname: PropTypes.string.isRequired,
 };
 
 export default Media;

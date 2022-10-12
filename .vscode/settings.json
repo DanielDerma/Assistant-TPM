@@ -8,8 +8,11 @@
     "Formik",
     "Gestion",
     "hrefs",
+    "Iconify",
     "Mezcaleria",
+    "randombytes",
     "Tortillería",
+    "uuidv",
     "Ydescripcion"
   ]
 }

@@ -1,6 +1,5 @@
 // firebase
 import {
-  addDoc,
   collection,
   collectionGroup,
   deleteDoc,
@@ -13,7 +12,8 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { getDownloadURL, uploadBytes, ref } from 'firebase/storage';
-import { listToObject } from '../utils';
+import { nanoid } from 'nanoid';
+
 import { firestore, storage } from './firebaseClient';
 
 export const getCurrentUser = async (uid) => {
@@ -23,23 +23,25 @@ export const getCurrentUser = async (uid) => {
 };
 
 export const getLocations = async () => {
-  const docRef = query(collection(firestore, 'companies'));
+  const docRef = query(collection(firestore, 'company'));
   const snapshot = await getDocs(docRef);
   const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   return data;
 };
 
-export const getFeed2 = async (location) => {
-  try {
-    const docRef = query(collection(firestore, 'companies'));
-    const snapshot = await getDocs(docRef);
-    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-    console.log(data)
-    return data;
-  } catch (error) {
-    console.log(error);
-    return []
-  }
+export const getFeed2 = async (data) => {
+  let urlTemp = '';
+
+  [...data, ''].forEach((elem, i) => {
+    const val = i === 0 ? 'company' : `subnivel${i}`;
+    urlTemp += `${val}/${elem}/`;
+  });
+
+  const url = urlTemp.slice(0, -2);
+  const docRef = query(collection(firestore, url));
+  const snapshot = await getDocs(docRef);
+  const res = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  return res;
 };
 
 export const getFeed = async (step, values) => {
@@ -123,33 +125,32 @@ export const createError = async (values) => {
   return refDoc.id;
 };
 
-export const createLocationRefs = async (values) => {
-  const locationRef = doc(collection(firestore, 'locationRefs'));
-  const valuesObj = listToObject(values);
-
-  await setDoc(locationRef, valuesObj);
-
-  return locationRef.id;
+const dynamicList = (data) => {
+  let urlTemp = '';
+  const res = Object.entries(data).map(async ([key, values]) => {
+    const id = nanoid();
+    urlTemp += `${key}/${id}/`;
+    const url = urlTemp.slice(0, -1);
+    const docRef = doc(firestore, url);
+    // const docRef = doc(firestore, 'locations', values.email);
+    return setDoc(docRef, values);
+  });
+  return res;
 };
 
-export const createLocation = async (values) => {
-  const { stepper, ...rest } = values;
-  const companyRef = doc(collection(firestore, 'companies'));
+export const createFromCompany = async (values) => {
+  const { stepper, structureData } = values;
+  // const toLocations = stepperToLocations(stepper);
 
-  const areaPathImg = `companies/${companyRef.id}`;
-  const areaStorageRef = ref(storage, areaPathImg);
-  await uploadBytes(areaStorageRef, rest.image);
-  const image = await getDownloadURL(areaStorageRef);
-
-  await setDoc(companyRef, { ...rest, image });
-
-  const locationRef = doc(firestore, 'locations', companyRef.id);
-  const valuesObj = listToObject(stepper);
-  console.log({valuesObj, stepper});
-
-  await setDoc(locationRef, valuesObj);
-
-  return { locationRef: locationRef.id, companyRef: companyRef.id };
+  // const locationRef = doc(firestore, 'locations', toLocations.company.id);
+  // await setDoc(locationRef, toLocations);
+  try {
+    const res = await Promise.all(dynamicList(structureData));
+    return res;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
 };
 
 export const createFromArea = async (values) => {

@@ -29,7 +29,6 @@ export function AuthProvider({ children }) {
       if (user) {
         getCurrentUser(user?.email)
           .then((data) => {
-            console.log(data);
             setInfoUser(data);
           })
           .catch((error) => {

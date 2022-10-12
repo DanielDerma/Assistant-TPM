@@ -1,25 +1,27 @@
-/* eslint-disable */
 import * as Yup from 'yup';
 
 export const createCourseInitialValues = (obj) => {
+  console.log({ obj });
   const newObj = {};
-  for (let value of obj) {
-    newObj[value.type] = {
+  obj.forEach((elem) => {
+    newObj[elem.id] = {
       title: '',
       description: '',
       image: '',
+      label: elem.label,
     };
-  }
+  });
   return newObj;
 };
 export const createCourseValidationSchema = (obj) => {
-  let newObj = {};
-  for (let value of obj) {
-    newObj[value.type] = Yup.object().shape({
+  const newObj = {};
+  obj.forEach((elem) => {
+    newObj[elem.id] = Yup.object().shape({
       title: Yup.string().required(),
       description: Yup.string(),
-      image: Yup.string().required(),
+      image: Yup.string(),
+      label: Yup.string(),
     });
-  }
+  });
   return Yup.object().shape(newObj);
 };

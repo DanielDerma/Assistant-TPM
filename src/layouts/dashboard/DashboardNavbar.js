@@ -8,6 +8,7 @@ import Slide from '@mui/material/Slide';
 // components
 import Iconify from '../../components/Iconify';
 import AccountPopover from './AccountPopover';
+import useResponsive from '../../hooks/useResponsive';
 //
 
 const DRAWER_WIDTH = 280;
@@ -41,7 +42,8 @@ DashboardNavbar.propTypes = {
 };
 
 export default function DashboardNavbar({ onOpenSidebar }) {
-  const trigger = useScrollTrigger();
+  const isDesktop = useResponsive('up', 'lg');
+  const trigger = useScrollTrigger({ disableHysteresis: isDesktop, threshold: 0 });
   return (
     <Slide appear={false} direction="down" in={!trigger}>
       <RootStyle>

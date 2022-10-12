@@ -7076,6 +7076,11 @@
   "resolved" "https://registry.npmjs.org/nanoid/-/nanoid-3.3.4.tgz"
   "version" "3.3.4"
 
+"nanoid@^4.0.0":
+  "integrity" "sha512-IgBP8piMxe/gf73RTQx7hmnhwz0aaEXYakvqZyE302IXW3HyVNhdNGC+O2MwMAVhLEnvXlvKtGbtJf6wvHihCg=="
+  "resolved" "https://registry.npmjs.org/nanoid/-/nanoid-4.0.0.tgz"
+  "version" "4.0.0"
+
 "natural-compare@^1.4.0":
   "integrity" "sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw=="
   "resolved" "https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz"
@@ -9480,9 +9485,9 @@
     "terser" "^5.7.2"
 
 "terser@^5.0.0", "terser@^5.10.0", "terser@^5.7.2":
-  "integrity" "sha512-+ahUAE+iheqBTDxXhTisdA8hgvbEG1hHOQ9xmNjeUJSoi6DU/gMrKNcfZjHkyY6Alnuyc+ikYJaxxfHkT3+WuQ=="
-  "resolved" "https://registry.npmjs.org/terser/-/terser-5.14.1.tgz"
-  "version" "5.14.1"
+  "integrity" "sha512-K1faMUvpm/FBxjBXud0LWVAGxmvoPbZbfTCYbSgaaYQaIXI3/TdI7a7ZGA73Zrou6Q8Zmz3oeUTsp/dj+ag2Xw=="
+  "resolved" "https://registry.npmjs.org/terser/-/terser-5.15.1.tgz"
+  "version" "5.15.1"
   dependencies:
     "@jridgewell/source-map" "^0.3.2"
     "acorn" "^8.5.0"
@@ -9699,11 +9704,6 @@
   "resolved" "https://registry.npmjs.org/unicode-property-aliases-ecmascript/-/unicode-property-aliases-ecmascript-2.0.0.tgz"
   "version" "2.0.0"
 
-"uniqid@^5.4.0":
-  "integrity" "sha512-38JRbJ4Fj94VmnC7G/J/5n5SC7Ab46OM5iNtSstB/ko3l1b5g7ALt4qzHFgGciFkyiRNtDXtLNb+VsxtMSE77A=="
-  "resolved" "https://registry.npmjs.org/uniqid/-/uniqid-5.4.0.tgz"
-  "version" "5.4.0"
-
 "unique-string@^2.0.0":
   "integrity" "sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg=="
   "resolved" "https://registry.npmjs.org/unique-string/-/unique-string-2.0.0.tgz"
@@ -9779,11 +9779,6 @@
   "integrity" "sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg=="
   "resolved" "https://registry.npmjs.org/uuid/-/uuid-8.3.2.tgz"
   "version" "8.3.2"
-
-"uuid@^9.0.0":
-  "integrity" "sha512-MXcSTerfPa4uqyzStbRoTgt5XIe3x5+42+q1sDuy3R5MDk66URdLMOZe5aPX/SQd+kuYAh0FdP/pO28IkQyTeg=="
-  "resolved" "https://registry.npmjs.org/uuid/-/uuid-9.0.0.tgz"
-  "version" "9.0.0"
 
 "v8-compile-cache@^2.0.3":
   "integrity" "sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA=="

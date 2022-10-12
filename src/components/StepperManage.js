@@ -6,10 +6,6 @@ import StepLabel from '@mui/material/StepLabel';
 import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
 import { LoadingButton } from '@mui/lab';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import PropTypes from 'prop-types';
 import { FormControl, Stack, TextField } from '@mui/material';
 import Image from 'mui-image';
@@ -17,15 +13,12 @@ import { useFormik } from 'formik';
 import Dropzone from './Dropzone';
 import { createCourseInitialValues, createCourseValidationSchema } from '../utils/manageValidation';
 
-FormDialog.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onAdd: PropTypes.func.isRequired,
-  steps: PropTypes.array.isRequired,
-  title: PropTypes.string.isRequired,
+StepperManage.propTypes = {
+  steps: PropTypes.array,
+  onAdd: PropTypes.func,
 };
 
-export default function FormDialog({ open, onClose, onAdd, title, steps }) {
+export default function StepperManage({ steps, onAdd }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [imgPreview, setImgPreview] = React.useState('');
 
@@ -50,53 +43,56 @@ export default function FormDialog({ open, onClose, onAdd, title, steps }) {
     initialValues: createCourseInitialValues(steps),
     validationSchema: createCourseValidationSchema(steps),
     onSubmit: (values) => {
-      onAdd(values).then(() => {
-        onClose();
-        setImgPreview('');
-        setActiveStep(0);
-        formik.resetForm();
-      });
+      onAdd(values);
     },
   });
 
+  console.log(formik.values);
+  console.log(formik.errors);
+
   return (
-    <Dialog open={open} maxWidth="md" fullWidth sx={{ minHeight: 700 }}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ width: '100%' }}>
-          <Stepper activeStep={activeStep} orientation="vertical" sx={{ mb: 2 }}>
-            {steps.map((step, index) => (
+    <Box sx={{ width: '100%' }}>
+      <form onSubmit={formik.handleSubmit}>
+        <Stepper activeStep={activeStep} orientation="vertical" sx={{ mb: 2 }}>
+          {steps.map((step, index) => {
+            const val = index !== 0 ? `subnivel${index}` : 'company';
+            const formikValue = formik.values[val];
+            const formikTouched = formik.touched[val];
+            const formikErrors = formik.errors[val];
+            return (
               <Step key={step.label}>
                 <StepLabel>{step.label}</StepLabel>
                 <StepContent>
                   <Stack direction="column">
                     <FormControl sx={{ m: 1 }}>
                       <TextField
-                        value={formik.values[step.type].title}
+                        value={formikValue?.title}
                         onChange={(event) => {
-                          formik.setFieldValue(`${step.type}.title`, event.target.value);
+                          formik.setFieldValue(`${val}.title`, event.target.value);
                         }}
-                        error={formik.touched[step.type.title] && Boolean(formik.errors[step.type.title])}
+                        error={formikTouched?.title && Boolean(formikErrors?.title)}
                         variant="standard"
                         id="standard-basic"
                         label="Titulo"
+                        fullWidth
                         sx={{ width: '100%' }}
                       />
                       <TextField
-                        value={formik.values[step.type].description}
+                        value={formikValue?.description}
                         onChange={(event) => {
-                          formik.setFieldValue(`${step.type}.description`, event.target.value);
+                          formik.setFieldValue(`${val}.description`, event.target.value);
                         }}
-                        error={formik.touched[step.type.description] && Boolean(formik.errors[step.type.description])}
+                        error={formikTouched?.description && Boolean(formikErrors?.description)}
                         variant="standard"
                         id="standard-basic2"
                         label="Descripción"
+                        fullWidth
                         sx={{ width: '100%' }}
                       />
                     </FormControl>
                     <Box sx={{ width: '100%' }}>
                       <Dropzone
-                        onFinish={(image) => handleImage(`${step.type}.image`, image)}
+                        onFinish={(image) => handleImage(`${val}.image`, image)}
                         onPreview={handleImagePreview}
                       />
                       <Image
@@ -117,7 +113,7 @@ export default function FormDialog({ open, onClose, onAdd, title, steps }) {
                       <LoadingButton
                         variant="contained"
                         type={index === steps.length - 1 ? 'submit' : 'button'}
-                        disabled={formik.values[step.type] === ''}
+                        disabled={!formikValue?.title || !formikValue?.description}
                         onClick={handleNext}
                         sx={{ mt: 1, mr: 1 }}
                       >
@@ -127,14 +123,10 @@ export default function FormDialog({ open, onClose, onAdd, title, steps }) {
                   </Box>
                 </StepContent>
               </Step>
-            ))}
-          </Stepper>
-        </Box>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Close</Button>
-        <Button onClick={formik.handleSubmit}>Añadir</Button>
-      </DialogActions>
-    </Dialog>
+            );
+          })}
+        </Stepper>
+      </form>
+    </Box>
   );
 }
