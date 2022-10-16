@@ -14,20 +14,22 @@ const Area = () => {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [data, setData] = useState([]);
+  const [utils, setUtils] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const paramsArray = params['*'].split('/');
+    setLoading(true);
     getFeed2(paramsArray)
-      .then((elem) => {
-        setData(elem);
+      .then(({ data, utils }) => {
+        setData(data);
+        setUtils(utils);
         setLoading(false);
       })
       .catch((err) => {
         console.log(err);
-        setLoading(false);
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleOpen = () => {
     setOpen(true);
@@ -37,9 +39,11 @@ const Area = () => {
     setOpen(false);
   };
 
+  console.log({ data, utils, loading });
+
   return (
     <Page title="Trabajo">
-      <AddSubItem title="Añadir ...." open={open} onClose={handleClose} />
+      {/* <AddSubItem title="Añadir ...." open={open} onClose={handleClose} /> */}
       <Container maxWidth="xl">
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h3">Sub</Typography>
@@ -47,7 +51,7 @@ const Area = () => {
             Añadir
           </Button>
         </Stack>
-        {/* <Breadcrumbs link={[{ name: 'Gestionar', href: '/dashboard/manage' }, {}]} /> */}
+        <Breadcrumbs utils={utils} loading={loading} />
         <Media data={data} loading={loading} pathname={pathname} />
       </Container>
     </Page>

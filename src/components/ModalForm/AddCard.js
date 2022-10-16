@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
 import Image from 'mui-image';
 import Dropzone from '../Dropzone';
 import StepperForm from '../StepperForm';
-import { createError } from '../../services/firebaseFunctions';
 
 const FormAdd = ({ onClose, open, title }) => {
   const [imgPreview, setImgPreview] = useState('');
@@ -85,18 +84,18 @@ const FormAdd = ({ onClose, open, title }) => {
       }),
     }),
     onSubmit: (values) => {
-      createError(values)
-        .then((elem) => {
-          console.log(elem, 'elemrefid');
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          onClose();
-          setImgPreview('');
-          formik.resetForm();
-        });
+      // createError(values)
+      //   .then((elem) => {
+      //     console.log(elem, 'elemrefid');
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   })
+      //   .finally(() => {
+      //     onClose();
+      //     setImgPreview('');
+      //     formik.resetForm();
+      //   });
     },
   });
 

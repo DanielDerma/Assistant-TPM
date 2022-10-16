@@ -1,14 +1,13 @@
 import * as Yup from 'yup';
 
 export const createCourseInitialValues = (obj) => {
-  console.log({ obj });
   const newObj = {};
   obj.forEach((elem) => {
     newObj[elem.id] = {
       title: '',
       description: '',
       image: '',
-      label: elem.label,
+      label: '',
     };
   });
   return newObj;

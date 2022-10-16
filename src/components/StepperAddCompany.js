@@ -10,7 +10,7 @@ import { TextField } from '@mui/material';
 const initialItems = [
   {
     id: 'company',
-    label: 'Compañia',
+    label: 'Compañía',
   },
 ];
 const steps2 = [
@@ -63,16 +63,16 @@ export default function StepperAddCompany({ onFinish }) {
                 label="Nombre"
                 variant="standard"
                 value={value}
-                fullWidth
                 onChange={(event) => setValue(event.target.value)}
+                fullWidth
               />
-              <Box sx={{ mb: 2 }}>
+              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
                 <div>
                   <Button variant="contained" onClick={handleNext} disabled={value.length === 0} sx={{ mt: 1, mr: 1 }}>
                     Continuar
                   </Button>
                   <Button
-                    color="secondary"
+                    color="warning"
                     variant="contained"
                     disabled={activeStep < 1 || value.length === 0}
                     onClick={handleFinish}

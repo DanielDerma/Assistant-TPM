@@ -40,8 +40,10 @@ export const getFeed2 = async (data) => {
   const url = urlTemp.slice(0, -2);
   const docRef = query(collection(firestore, url));
   const snapshot = await getDocs(docRef);
-  const res = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  return res;
+  const response = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  const resUtils = response.find((elem) => elem.id === 'utils');
+  const res = response.filter((elem) => elem.id !== 'utils');
+  return { data: res, utils: resUtils };
 };
 
 export const getFeed = async (step, values) => {
@@ -125,125 +127,30 @@ export const createError = async (values) => {
   return refDoc.id;
 };
 
-const dynamicList = (data) => {
+export const createFromCompany = async (data) => {
   let urlTemp = '';
+
   const res = Object.entries(data).map(async ([key, values]) => {
-    const id = nanoid();
+    const id = nanoid(8);
     urlTemp += `${key}/${id}/`;
     const url = urlTemp.slice(0, -1);
+    const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
+    const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
+
     const docRef = doc(firestore, url);
-    // const docRef = doc(firestore, 'locations', values.email);
-    return setDoc(docRef, values);
+    const docRef2 = doc(firestore, urlUtils);
+
+    await setDoc(docRef, values);
+    await setDoc(docRef2, { structure });
+    return 'ok';
   });
-  return res;
-};
-
-export const createFromCompany = async (values) => {
-  const { stepper, structureData } = values;
-  // const toLocations = stepperToLocations(stepper);
-
-  // const locationRef = doc(firestore, 'locations', toLocations.company.id);
-  // await setDoc(locationRef, toLocations);
   try {
-    const res = await Promise.all(dynamicList(structureData));
-    return res;
+    await Promise.all(res);
+    return 'ok';
   } catch (error) {
     console.log(error);
     return error;
   }
-};
-
-export const createFromArea = async (values) => {
-  const { area, workspace, system, locationId } = values;
-
-  const areaRef = doc(collection(firestore, 'locations', locationId, 'area'));
-
-  const areaPathImg = `area/${areaRef}`;
-  const areaStorageRef = ref(storage, areaPathImg);
-  await uploadBytes(areaStorageRef, area.image);
-  const areaImage = await getDownloadURL(areaStorageRef);
-
-  await setDoc(areaRef, { ...area, image: areaImage });
-
-  const workspaceRef = doc(collection(firestore, 'locations', locationId, 'area', areaRef.id, 'workspace'));
-
-  const workspacePathImg = `workspace/${workspaceRef}`;
-  const workspaceStorageRef = ref(storage, workspacePathImg);
-  await uploadBytes(workspaceStorageRef, workspace.image);
-  const workspaceImage = await getDownloadURL(workspaceStorageRef);
-
-  await setDoc(workspaceRef, { ...workspace, image: workspaceImage });
-
-  const systemRef = doc(
-    collection(firestore, 'locations', locationId, 'area', areaRef.id, 'workspace', workspaceRef.id, 'system')
-  );
-
-  const systemPathImg = `system/${systemRef}`;
-  const systemStorageRef = ref(storage, systemPathImg);
-  await uploadBytes(systemStorageRef, system.image);
-  const systemImage = await getDownloadURL(systemStorageRef);
-
-  await setDoc(systemRef, { ...system, image: systemImage });
-
-  return {
-    location: locationId,
-    area: areaRef.id,
-    workspace: workspaceRef.id,
-    system: systemRef.id,
-  };
-};
-
-export const createFromWorkspace = async (values) => {
-  const { workspace, system, locationId, areaId } = values;
-
-  const workspaceRef = doc(collection(firestore, 'locations', locationId, 'area', areaId, 'workspace'));
-
-  const workspacePathImg = `workspace/${workspaceRef.id}`;
-  const workspaceStorageRef = ref(storage, workspacePathImg);
-  await uploadBytes(workspaceStorageRef, workspace.image);
-  const workspaceImage = await getDownloadURL(workspaceStorageRef);
-
-  await setDoc(workspaceRef, { ...workspace, image: workspaceImage });
-
-  const systemRef = doc(
-    collection(firestore, 'locations', locationId, 'area', areaId, 'workspace', workspaceRef.id, 'system')
-  );
-
-  const systemPathImg = `system/${systemRef.id}`;
-  const systemStorageRef = ref(storage, systemPathImg);
-  await uploadBytes(systemStorageRef, system.image);
-  const systemImage = await getDownloadURL(systemStorageRef);
-
-  await setDoc(systemRef, { ...system, image: systemImage });
-
-  return {
-    location: locationId,
-    area: areaId,
-    workspace: workspaceRef.id,
-    system: systemRef.id,
-  };
-};
-
-export const createFromSystem = async (values) => {
-  const { system, locationId, areaId, workspaceId } = values;
-
-  const systemRef = doc(
-    collection(firestore, 'locations', locationId, 'area', areaId, 'workspace', workspaceId, 'system')
-  );
-
-  const systemPathImg = `system/${systemRef.id}`;
-  const systemStorageRef = ref(storage, systemPathImg);
-  await uploadBytes(systemStorageRef, system.image);
-  const systemImage = await getDownloadURL(systemStorageRef);
-
-  await setDoc(systemRef, { ...system, image: systemImage });
-
-  return {
-    location: locationId,
-    area: areaId,
-    workspace: workspaceId,
-    system: systemRef.id,
-  };
 };
 
 export const getSubCollectionErrors = async () => {
@@ -259,7 +166,6 @@ export const getSubCollectionErrors = async () => {
 
 export const getUsers = async () => {
   const querySnapshot = await getDocs(collection(firestore, 'user'));
-
   const data = querySnapshot.docs.map((doc) => doc.data());
 
   return data;
@@ -283,24 +189,24 @@ export const createUser = async (values, currentUser) => {
   }
 };
 
-export const updateUser = async (email, values) => {
+export const deleteUser = async (email) => {
   const docRef = doc(firestore, 'user', email);
   try {
-    await updateDoc(docRef, values);
+    await deleteDoc(docRef);
+    await fetch(`https://us-central1-project2-5eb0d.cloudfunctions.net/app/users/${email}`, {
+      method: 'DELETE',
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(email),
+    });
   } catch (err) {
     console.error(err);
   }
 };
 
-export const deleteUser = async (email) => {
+export const updateUser = async (email, values) => {
   const docRef = doc(firestore, 'user', email);
   try {
-    await deleteDoc(docRef);
-    await fetch('http://127.0.0.1:5001/project2-5eb0d/us-central1/app/users/cesar@gmail.com', {
-      method: 'DELETE',
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(email),
-    });
+    await updateDoc(docRef, values);
   } catch (err) {
     console.error(err);
   }

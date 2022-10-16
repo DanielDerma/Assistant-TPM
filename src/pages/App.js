@@ -145,9 +145,6 @@ const App = ({ isAdmin }) => {
                       { label: 'Empresa 5', value: 540 },
                       { label: 'Empresa 6', value: 580 },
                       { label: 'Empresa 7', value: 690 },
-                      { label: 'Empresa 8', value: 1100 },
-                      { label: 'Empresa 9', value: 1200 },
-                      { label: 'Empresa 10', value: 1380 },
                     ]}
                   />
                 </Grid>
