@@ -19,19 +19,18 @@ import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/user';
+import { Done, DoneAll, MoreInfo } from '../components/ModalForm/filter';
 // mock
-import { getSubCollectionErrors } from '../services/firebaseFunctions';
+import { getLocation, getSubCollectionErrors } from '../services/firebaseFunctions';
+import useAuth from '../hooks/useAuth';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'location', label: 'Compañía', alignRight: false },
-  { id: 'area', label: 'Área', alignRight: false },
-  { id: 'workspace', label: 'Trabajo', alignRight: false },
-  { id: 'system', label: 'Sistema', alignRight: false },
-  { id: 'dateAndTime', label: 'Fecha', alignRight: false },
+const DEFAULT_TABLE_HEAD = [
+  { id: 'date', label: 'Fecha', alignRight: false },
+  { id: 'time', label: 'hora', alignRight: false },
   { id: 'type', label: 'Tipo', alignRight: false },
-  { id: 'anomaly', label: 'Anomalía', alignRight: false },
+  { id: 'risk', label: 'Anomalía', alignRight: false },
   { id: '' },
 ];
 
@@ -53,20 +52,27 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+function applySortFilter(array, config, comparator, query) {
+  const arrayConfigWithCards = array.filter((elem) => config.cards.some((e) => e === elem.type));
+  const arrayConfigWithCardsAndRisks = arrayConfigWithCards.filter((elem) => config.risk.some((e) => e === elem.risk));
+
+  const stabilizedThis = arrayConfigWithCardsAndRisks.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.location.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(
+      arrayConfigWithCardsAndRisks,
+      (_user) => _user.structure?.[0].toLowerCase().indexOf(query.toLowerCase()) !== -1
+    );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function User() {
+export default function User({ isAdmin }) {
+  const { company } = useAuth();
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -79,19 +85,49 @@ export default function User() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [selectedRow, setSelectedRow] = useState({});
+
   const [openFilter, setOpenFilter] = useState(false);
+  const [openDeleteAll, setOpenDeleteAll] = useState(false);
+  const [openMoreInfo, setOpenMoreInfo] = useState(false);
+  const [openDone, setOpenDone] = useState(false);
+
+  const [headers, setHeaders] = useState([]);
 
   const [data, setData] = useState([]);
+
+  const [config, setConfig] = useState({
+    cards: ['maintenance', 'operation', 'security'],
+    risk: [10, 20, 30, 40, 50],
+  });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    getErrors();
+  }, []); //  eslint-disable-line react-hooks/exhaustive-deps
+
+  const getErrors = () => {
     setLoading(true);
-    getSubCollectionErrors().then((data) => {
-      console.log(data);
+    getSubCollectionErrors(company.title).then((data) => {
+      setSelected([]);
       setData(data);
       setLoading(false);
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    getLocation(company.id)
+      .then((steps) => {
+        const headers = steps.map((step, i) => ({ id: i, label: step, alignRight: false }));
+        setHeaders(headers);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -101,7 +137,7 @@ export default function User() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = data.map((n) => n.company);
+      const newSelecteds = filteredUsers.map((n) => n.path);
       setSelected(newSelecteds);
       return;
     }
@@ -138,31 +174,58 @@ export default function User() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
-  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterLocation);
+  const filteredUsers = applySortFilter(data, config, getComparator(order, orderBy), filterLocation);
 
   const isUserNotFound = filteredUsers.length === 0;
+
+  const headersTable = [{ id: 'id', label: 'Folio', alignRight: false }, ...headers, ...DEFAULT_TABLE_HEAD];
 
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
 
-  const handleCloseFilter = () => {
+  const handleCloseFilter = (config) => {
+    setConfig(config);
     setOpenFilter(false);
   };
 
-  if (loading) {
-    return 'Loading...';
-  }
+  const handleCloseDeleteAll = () => {
+    setOpenDeleteAll(false);
+  };
+
+  const handleOpenDeleteAll = () => {
+    setOpenDeleteAll(true);
+  };
+
+  const handleOpenMoreInfo = () => {
+    setOpenMoreInfo(true);
+  };
+
+  const handleCloseMoreInfo = () => {
+    setOpenMoreInfo(false);
+  };
+
+  const handleOpenDone = () => {
+    setOpenDone(true);
+  };
+
+  const handleCloseDone = () => {
+    setOpenDone(false);
+  };
 
   return (
     <Page title="Filtrado">
       <FilterSidebar isOpenFilter={openFilter} onCloseFilter={handleCloseFilter} />
+      <MoreInfo open={openMoreInfo} onClose={handleCloseMoreInfo} selectedRow={selectedRow} />
+      <Done open={openDone} onClose={handleCloseDone} selectedRow={selectedRow} onGetErrors={getErrors} />
+      <DoneAll open={openDeleteAll} onClose={handleCloseDeleteAll} selected={selected} onGetErrors={getErrors} />
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
           Filtrado
         </Typography>
         <Card>
           <UserListToolbar
+            onDeleteAll={handleOpenDeleteAll}
             onOpenFilter={handleOpenFilter}
             numSelected={selected.length}
             filterLocation={filterLocation}
@@ -175,7 +238,7 @@ export default function User() {
                 <UserListHead
                   order={order}
                   orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
+                  headLabel={headersTable}
                   rowCount={data.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
@@ -183,8 +246,8 @@ export default function User() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, type, name, status, area, workspace, location } = row;
-                    const isItemSelected = selected.indexOf(name) !== -1;
+                    const { risk, date, time, id, structure, type, path } = row;
+                    const isItemSelected = selected.indexOf(path) !== -1;
 
                     return (
                       <TableRow
@@ -196,22 +259,28 @@ export default function User() {
                         aria-checked={isItemSelected}
                       >
                         <TableCell padding="checkbox">
-                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, location)} />
+                          <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, path)} />
                         </TableCell>
-                        <TableCell align="left">{location}</TableCell>
-                        <TableCell align="left">{area}</TableCell>
-                        <TableCell align="left">{workspace}</TableCell>
+                        <TableCell align="left">{id}</TableCell>
+                        {structure.map((item) => (
+                          <TableCell align="left" key={item}>
+                            {item}
+                          </TableCell>
+                        ))}
+                        <TableCell align="left">{date}</TableCell>
+                        <TableCell align="left">{time}</TableCell>
                         <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">{risk}</TableCell>
 
-                        <TableCell align="right">
-                          <UserMoreMenu />
+                        <TableCell align="right" onClick={() => setSelectedRow(row)}>
+                          <UserMoreMenu onOpenDone={handleOpenDone} onOpenMoreInfo={handleOpenMoreInfo} />
                         </TableCell>
                       </TableRow>
                     );
                   })}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
+                      <TableCell colSpan={9} />
                     </TableRow>
                   )}
                 </TableBody>
@@ -219,7 +288,7 @@ export default function User() {
                 {isUserNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <SearchNotFound searchQuery={filterLocation} />
                       </TableCell>
                     </TableRow>

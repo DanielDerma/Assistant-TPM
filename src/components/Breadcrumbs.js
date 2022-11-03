@@ -7,10 +7,12 @@ import { Link as RouterLink } from 'react-router-dom';
 BasicBreadcrumbs.propTypes = {
   utils: PropTypes.object,
   loading: PropTypes.bool,
+  error: PropTypes.bool,
 };
 
-export default function BasicBreadcrumbs({ utils, loading }) {
-  if (loading) return null;
+export default function BasicBreadcrumbs({ utils, loading, error }) {
+  console.log({loading, error});
+  if (loading  || error) return null;
   console.log(utils);
   return (
     <div role="presentation">

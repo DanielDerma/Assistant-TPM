@@ -16,9 +16,10 @@ import { createFromCompany } from '../services/firebaseFunctions';
 
 StepperManage.propTypes = {
   steps: PropTypes.array,
+  handleData: PropTypes.func,
 };
 
-export default function StepperManage({ steps }) {
+export default function StepperManage({ steps, handleData }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [imgPreview, setImgPreview] = React.useState('');
 
@@ -49,7 +50,9 @@ export default function StepperManage({ steps }) {
         })
         .catch((err) => {
           console.log(err);
-        });
+        }).finally(() => {
+          handleData()
+        })
     },
   });
 
@@ -70,6 +73,7 @@ export default function StepperManage({ steps }) {
                     <TextField
                       value={formikValue?.title}
                       onChange={(event) => {
+                        console.log(event.target.value);
                         formik.setFieldValue(`${val}.title`, event.target.value);
                         formik.setFieldValue(`${val}.label`, step.label);
                       }}
@@ -110,7 +114,7 @@ export default function StepperManage({ steps }) {
                       <LoadingButton
                         variant="contained"
                         type={index === steps.length - 1 ? 'submit' : 'button'}
-                        disabled={!formikValue?.title || !formikValue?.description}
+                        disabled={formikErrors?.title || formikErrors?.description}
                         onClick={handleNext}
                         sx={{ mt: 1, mr: 1 }}
                       >

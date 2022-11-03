@@ -46,7 +46,7 @@ DashboardSidebar.propTypes = {
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
   const { pathname } = useLocation();
-  const { infoUser } = useAuth();
+  const { infoUser, isAdmin } = useAuth();
 
   const isDesktop = useResponsive('up', 'lg');
 
@@ -77,7 +77,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
                 {`${infoUser.fname} ${infoUser.lname}`}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {infoUser.userCompany === 'admin' ? 'Admin' : 'Técnico'}
+                {isAdmin ? 'Admin' : 'Técnico'}
               </Typography>
             </Box>
           </AccountStyle>

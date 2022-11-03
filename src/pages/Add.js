@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Grid, Container, Typography } from '@mui/material';
-import FormAdd from '../components/ModalForm/AddCard';
+import { AddCard } from '../components/ModalForm/add';
 // @mui
 // components
 import Page from '../components/Page';
 
-// sections
 import { AppWidgetSummary } from '../sections/@dashboard/add';
+import Alert from '../components/Alert';
 
 // ----------------------------------------------------------------------
 
@@ -33,16 +33,29 @@ const cards = [
 
 export default function DashboardApp() {
   const [open, setOpen] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [idPreview, setIdPreview] = useState(0);
   const [title, setTitle] = useState({});
 
   const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpen(true);
+
+  const handleCloseAlert = () => setOpenAlert(false);
+  const handleOpenAlert = (id) => {
+    setIdPreview(id);
+    setOpenAlert(true);
+  };
 
   const handleTitle = (title) => setTitle(title);
-  const handleOpen = () => setOpen(true);
 
   return (
     <Page title="Añadir">
-      <FormAdd onClose={handleClose} open={open} title={title} />
+      <AddCard onClose={handleClose} open={open} title={title} onConfirm={handleOpenAlert} />
+      <Alert
+        open={openAlert}
+        onClose={handleCloseAlert}
+        severity="success"
+      >{`Creado con éxito, Folio: ${idPreview}`}</Alert>
       <Container maxWidth="xl">
         <Typography variant="h4">Hola, Bienvenido</Typography>
         <Typography variant="h4" sx={{ mb: 5 }}>

@@ -10,6 +10,7 @@ import {
   setDoc,
   Timestamp,
   updateDoc,
+  where,
 } from 'firebase/firestore';
 import { getDownloadURL, uploadBytes, ref } from 'firebase/storage';
 import { nanoid } from 'nanoid';
@@ -22,11 +23,30 @@ export const getCurrentUser = async (uid) => {
   return userSnap.data();
 };
 
-export const getLocations = async () => {
+export const getCompanies = async () => {
   const docRef = query(collection(firestore, 'company'));
   const snapshot = await getDocs(docRef);
   const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   return data;
+};
+
+export const getLocation = async (id) => {
+  const querySnapshotLocation = await getDoc(doc(firestore, 'locations', id));
+  const location = querySnapshotLocation.data();
+  return location.locationDoc;
+};
+
+export const getFromLocation = async (id) => {
+  const docRef = query(doc(firestore, 'company', id));
+  const collectionRef2 = query(collection(firestore, 'company', id, 'subnivel1'));
+  const userSnap = await getDoc(docRef);
+  const userData = userSnap.data();
+  const collectionSnapshot = await getDocs(collectionRef2);
+  const collectionData = collectionSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  return {
+    userData,
+    collectionData,
+  };
 };
 
 export const getFeed2 = async (data) => {
@@ -40,72 +60,70 @@ export const getFeed2 = async (data) => {
   const url = urlTemp.slice(0, -2);
   const docRef = query(collection(firestore, url));
   const snapshot = await getDocs(docRef);
+
   const response = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+  if (response.length === 0) throw new Error('No data');
+
   const resUtils = response.find((elem) => elem.id === 'utils');
   const res = response.filter((elem) => elem.id !== 'utils');
+
   return { data: res, utils: resUtils };
 };
 
-export const getFeed = async (step, values) => {
-  const { location, area, workspace } = values;
+export const getFeed = async (data) => {
+  let urlTemp = '';
 
-  if (step === null) {
-    const docRef = query(collection(firestore, 'locations'));
-    const snapshot = await getDocs(docRef);
-    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-    return data;
-  }
+  [...data, ''].forEach(({ id }, i) => {
+    const val = i === 0 ? 'company' : `subnivel${i}`;
+    const idTemp = id || '';
+    urlTemp += `${val}/${idTemp}/`;
+  });
 
-  if (step === 'location') {
-    const docRef = query(collection(firestore, 'locations', location.id, 'area'));
-    const snapshot = await getDocs(docRef);
-    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-    return data;
-  }
-  if (step === 'area') {
-    const docRef = query(collection(firestore, 'locations', location.id, 'area', area.id, 'workspace'));
-    const snapshot = await getDocs(docRef);
-    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-    return data;
-  }
-  if (step === 'workspace') {
-    const docRef = query(
-      collection(firestore, 'locations', location.id, 'area', area.id, 'workspace', workspace.id, 'system')
-    );
-    const snapshot = await getDocs(docRef);
-    const data = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-    return data;
-  }
+  const url = urlTemp.slice(0, -2);
+  console.log({ data, url });
+  const docRef = query(collection(firestore, url));
+  const snapshot = await getDocs(docRef);
 
-  return [];
+  const response = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  if (response.length === 0) throw new Error('No data');
+
+  const res = response.filter((elem) => elem.id !== 'utils');
+  return res;
+};
+
+const getCurrentCounterError = async (idCompany) => {
+  const docRef = doc(firestore, 'utils', 'counterErrors');
+  const snapshot = await getDoc(docRef);
+  const counter = snapshot.data()?.[idCompany];
+  // check if counter is undefined
+  const newCounter = Number.isInteger(counter) ? counter + 1 : 1;
+
+  await updateDoc(docRef, {
+    [idCompany]: newCounter,
+  });
+
+  return newCounter;
 };
 
 export const createError = async (values) => {
-  const {
-    stepper: { location, area, workspace, system },
-    dateAndTime: dateAndTimeNoFirebase,
-    anomaly,
-    description,
-    image,
-    type,
-  } = values;
+  const { structure, dateAndTime: dateAndTimeNoFirebase, risk, description, image, type } = values;
 
-  const refDoc = doc(
-    collection(
-      firestore,
-      'locations',
-      location.id,
-      'area',
-      area.id,
-      'workspace',
-      workspace.id,
-      'system',
-      system.id,
-      'errors'
-    )
-  );
+  const structureTitles = structure.map((elem) => elem.title);
 
-  const pathImg = `${type}-errors/${refDoc.id}`;
+  const idCompany = structureTitles[0].id;
+
+  const counter = await getCurrentCounterError(idCompany);
+
+  let url = '';
+  structure.forEach(({ id }, i) => {
+    const val = i === 0 ? 'company' : `subnivel${i}`;
+    url += `${val}/${id}/`;
+  });
+  url += 'errors';
+
+  const refDoc = doc(firestore, url, counter.toString());
+  const pathImg = `${type}-errors/${counter}`;
   const storageRef = ref(storage, pathImg);
   await uploadBytes(storageRef, image);
   const imageUrl = await getDownloadURL(storageRef);
@@ -113,12 +131,9 @@ export const createError = async (values) => {
   const dateAndTime = Timestamp.fromDate(dateAndTimeNoFirebase.toDate());
 
   await setDoc(refDoc, {
-    location: location.title,
-    area: area.title,
-    workspace: workspace.title,
-    system: system.title,
+    structure: structureTitles,
     dateAndTime,
-    anomaly,
+    risk,
     description,
     image: imageUrl,
     type,
@@ -134,31 +149,90 @@ export const createFromCompany = async (data) => {
     const id = nanoid(8);
     urlTemp += `${key}/${id}/`;
     const url = urlTemp.slice(0, -1);
-    const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
-    const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
+    if (key !== 'company') {
+      const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
+      const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
+      const docRefUtils = doc(firestore, urlUtils);
+      await setDoc(docRefUtils, { structure });
+    }
 
     const docRef = doc(firestore, url);
-    const docRef2 = doc(firestore, urlUtils);
-
     await setDoc(docRef, values);
-    await setDoc(docRef2, { structure });
-    return 'ok';
+
+    return {
+      id,
+      label: values.label,
+    };
   });
+
   try {
-    await Promise.all(res);
-    return 'ok';
+    const response = await Promise.all(res);
+    const locationDoc = response.map((elem) => elem.label);
+
+    const docRef = doc(firestore, 'locations', response[0].id);
+    await setDoc(docRef, { locationDoc });
+
+    return response;
   } catch (error) {
     console.log(error);
     return error;
   }
 };
 
-export const getSubCollectionErrors = async () => {
-  const querySnapshot = await getDocs(collectionGroup(firestore, 'errors'));
+export const deleteError = async (path) => {
+  const docRef = doc(firestore, path);
+  await deleteDoc(docRef);
+};
+
+export const deleteAllError = (paths) => {
+  const res = paths.map((path) => deleteDoc(doc(firestore, path)));
+  return Promise.all(res);
+};
+
+export const getSubCollectionErrors = async (title) => {
+  const querySnapshot = await getDocs(
+    query(collectionGroup(firestore, 'errors'), where('structure', 'array-contains', title))
+  );
 
   const data = querySnapshot.docs.map((doc) => {
     const date = doc.data().dateAndTime.toDate().toLocaleDateString('es-ES');
-    return { ...doc.data(), dateAndTime: date, id: doc.id };
+    const time = doc.data().dateAndTime.toDate().toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return { ...doc.data(), date, time, id: doc.id, path: doc.ref.path };
+  });
+
+  return data;
+};
+
+export const getSubCollectionErrorsWithParams = async (params) => {
+  const { dateI, dateF, risk, structure } = params;
+
+  let url = '';
+  structure.forEach(({ id }, i) => {
+    const val = i === 0 ? 'company' : `subnivel${i}`;
+    url += `${val}/${id}/`;
+  });
+  url += 'errors';
+
+  const dateITimestamp = Timestamp.fromDate(dateI.toDate());
+  const dateFTimestamp = Timestamp.fromDate(dateF.toDate());
+
+  const queryConstraints = [where('dateAndTime', '>=', dateITimestamp), where('dateAndTime', '<=', dateFTimestamp)];
+
+  if (risk !== 0) queryConstraints.push(where('risk', '==', risk));
+
+  const querySnapshot = await getDocs(query(collection(firestore, url), ...queryConstraints));
+
+  const data = querySnapshot.docs.map((doc) => {
+    const date = doc.data().dateAndTime.toDate().toLocaleDateString('es-ES');
+    const time = doc.data().dateAndTime.toDate().toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return { id: doc.id, ...doc.data(), date, time };
   });
 
   return data;
@@ -173,6 +247,7 @@ export const getUsers = async () => {
 
 export const createUser = async (values, currentUser) => {
   const docRef = doc(firestore, 'user', values.email);
+
   try {
     const idToken = await currentUser.getIdToken();
     await fetch('https://us-central1-project2-5eb0d.cloudfunctions.net/app/users', {

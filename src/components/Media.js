@@ -2,7 +2,15 @@ import { Card, CardActionArea, CardContent, CardMedia, Grid, Skeleton, Typograph
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-const Media = ({ data, pathname, loading }) => {
+const Media = ({ data, pathname, loading, error }) => {
+  if(error) {
+    return (
+      <Typography variant="h5" color="error">
+        Error al cargar los datos
+      </Typography>
+    )
+  }
+
   if (loading) {
     return (
       <Grid container spacing={4}>
@@ -61,9 +69,10 @@ const Media = ({ data, pathname, loading }) => {
 };
 
 Media.propTypes = {
-  data: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-  pathname: PropTypes.string.isRequired,
+  data: PropTypes.array,
+  loading: PropTypes.bool,
+  error: PropTypes.bool,
+  pathname: PropTypes.string,
 };
 
 export default Media;

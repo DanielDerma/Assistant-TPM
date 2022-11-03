@@ -15,8 +15,8 @@ import {
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { LoadingButton } from '@mui/lab';
-import { createUser, getLocations } from '../../services/firebaseFunctions';
-import useAuth from '../../hooks/useAuth';
+import { createUser, getCompanies } from '../../../services/firebaseFunctions';
+import useAuth from '../../../hooks/useAuth';
 
 TableAdd.propTypes = {
   onClose: PropTypes.func,
@@ -30,11 +30,11 @@ export default function TableAdd({ open, onClose }) {
 
   useEffect(() => {
     setLoading(true);
-    getLocations().then((data) => {
+    getCompanies().then((data) => {
       setMenuItems(data);
       setLoading(false);
     });
-  }, []);
+  }, [open]);
 
   const handleCloseWithReset = () => {
     onClose();
@@ -64,9 +64,9 @@ export default function TableAdd({ open, onClose }) {
     onSubmit: (values) => {
       setLoading(true);
       const password = Math.random().toString(36).slice(-8);
-      const { id } = menuItems.find((item) => item.title === values.company);
+      const company = menuItems.find((item) => item.title === values.company);
 
-      createUser({ ...values, userCompany: id, password }, currentUser)
+      createUser({ ...values, password, company }, currentUser)
         .then(() => {
           handleCloseWithReset();
         })

@@ -7,7 +7,7 @@ import Iconify from '../../../components/Iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserMoreMenu() {
+export default function UserMoreMenu({ onOpenDone, onOpenMoreInfo }) {
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,25 +27,18 @@ export default function UserMoreMenu() {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem sx={{ color: 'text.secondary' }}>
+        <MenuItem sx={{ color: 'text.secondary' }} onClick={onOpenMoreInfo}>
           <ListItemIcon>
             <Iconify icon="eva:info-outline" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="More Info" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary="Mas información" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
 
-        <MenuItem component={RouterLink} to="#" sx={{ color: 'text.secondary' }}>
+        <MenuItem sx={{ color: 'text.secondary' }} onClick={onOpenDone}>
           <ListItemIcon>
-            <Iconify icon="eva:edit-fill" width={24} height={24} />
+            <Iconify icon="eva:archive-outline" width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Edit" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'text.secondary' }}>
-          <ListItemIcon>
-            <Iconify icon="eva:trash-2-outline" width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="Delete" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary="Terminado" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </Menu>
     </>

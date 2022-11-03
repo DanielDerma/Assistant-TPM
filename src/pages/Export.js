@@ -1,27 +1,40 @@
-import { Box, Button, Container, Typography } from '@mui/material';
-import React from 'react';
-import DataPickerRange from '../components/DataPickerRange';
-import Excel from '../utils/icons/Excel';
+import { Button, Container, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { BlobProvider } from '@react-pdf/renderer';
+import { getLocation } from '../services/firebaseFunctions';
+import ExportForm from '../components/ExportForm';
 import Page from '../components/Page';
-import Stepper from '../components/StepperForm';
+import useAuth from '../hooks/useAuth';
+import DocExcel from '../components/DocExcel';
 
 const Export = () => {
-  console.log();
+  const [headers, setHeaders] = useState([]);
+  const { company } = useAuth();
+
+  useEffect(() => {
+    getLocation(company.id)
+      .then((steps) => {
+        setHeaders(steps);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Page title="Exportar">
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
           Selecciona las características que desea ver en el documento.
         </Typography>
-        <DataPickerRange />
-        <Box sx={{ mt: 5 }}>
-          <Stepper onFinish={(data) => console.log(data)} />
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button variant="contained" endIcon={<Excel />} sx={{ mx: 'auto' }}>
-            Exportar
-          </Button>
-        </Box>
+        <ExportForm structureHeaders={headers} />
+        <BlobProvider document={<DocExcel />}>
+          {({ url }) => (
+            <a href={url} target="_blank" rel="noreferrer">
+              Open in new tab
+            </a>
+          )}
+        </BlobProvider>
       </Container>
     </Page>
   );

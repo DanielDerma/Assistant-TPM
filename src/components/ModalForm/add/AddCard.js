@@ -19,11 +19,14 @@ import PropTypes from 'prop-types';
 
 // components
 import Image from 'mui-image';
-import Dropzone from '../Dropzone';
-import StepperForm from '../StepperForm';
+import { LoadingButton } from '@mui/lab';
+import Dropzone from '../../Dropzone';
+import StepperForm from '../../StepperForm';
+import { createError } from '../../../services/firebaseFunctions';
 
-const FormAdd = ({ onClose, open, title }) => {
+const FormAdd = ({ onClose, open, title, onConfirm }) => {
   const [imgPreview, setImgPreview] = useState('');
+  const [loading, setLoading] = useState(false);
   const today = dayjs(new Date());
   const tomorrow = dayjs().endOf('day');
 
@@ -31,71 +34,40 @@ const FormAdd = ({ onClose, open, title }) => {
     if (open) {
       formik.setFieldValue('type', title.type);
     }
-  }, [open, title]); // eslint-disable-line
+  }, [open, title]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formik = useFormik({
     initialValues: {
       dateAndTime: today,
-      anomaly: '',
+      risk: '',
       description: '',
       image: '',
       type: title.type,
-      stepper: {
-        location: {
-          id: '',
-          title: '',
-        },
-        area: {
-          id: '',
-          title: '',
-        },
-        workspace: {
-          id: '',
-          title: '',
-        },
-        system: {
-          id: '',
-          title: '',
-        },
-      },
+      structure: [],
     },
     validationSchema: Yup.object({
-      dateAndTime: Yup.string().required('Requerido'),
-      anomaly: Yup.string().required('Requerido'),
+      dateAndTime: Yup.date().required('Requerido'),
+      risk: Yup.string().required('Requerido'),
       description: Yup.string().required('Requerido').max(50, 'Máximo 50 caracteres'),
       image: Yup.string().required('Requerido'),
-      stepper: Yup.object().shape({
-        location: Yup.object().shape({
-          id: Yup.string().required(),
-          title: Yup.string().required(),
-        }),
-        area: Yup.object().shape({
-          id: Yup.string().required(),
-          title: Yup.string().required(),
-        }),
-        workspace: Yup.object().shape({
-          id: Yup.string().required(),
-          title: Yup.string().required(),
-        }),
-        system: Yup.object().shape({
-          id: Yup.string().required(),
-          title: Yup.string().required(),
-        }),
-      }),
+      structure: Yup.array().test('structure', 'Requerido', (value) => value.length > 0),
     }),
     onSubmit: (values) => {
-      // createError(values)
-      //   .then((elem) => {
-      //     console.log(elem, 'elemrefid');
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //   })
-      //   .finally(() => {
-      //     onClose();
-      //     setImgPreview('');
-      //     formik.resetForm();
-      //   });
+      console.log({ values });
+      setLoading(true);
+      createError(values)
+        .then((elem) => {
+          onConfirm(elem);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          setLoading(false);
+          onClose();
+          setImgPreview('');
+          formik.resetForm();
+        });
     },
   });
 
@@ -115,8 +87,8 @@ const FormAdd = ({ onClose, open, title }) => {
     setImgPreview(URL.createObjectURL(image));
   };
 
-  const handleFinish = (value) => {
-    formik.setFieldValue('stepper', value);
+  const handleStructure = (value) => {
+    formik.setFieldValue('structure', value);
   };
 
   return (
@@ -125,7 +97,10 @@ const FormAdd = ({ onClose, open, title }) => {
       <DialogContent>
         <Grid container>
           <Grid item xs={12} md={4}>
-            <StepperForm onFinish={handleFinish} errorSubmit={formik.errors.stepper && formik.touched.stepper} />
+            <StepperForm
+              onFinish={handleStructure}
+              errorSubmit={Boolean(formik.errors.structure && formik.touched.structure)}
+            />
           </Grid>
           <Grid item xs={12} md={4}>
             <Box sx={{ width: '100%' }}>
@@ -145,16 +120,18 @@ const FormAdd = ({ onClose, open, title }) => {
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         label="Estatus de Anomalía"
-                        value={formik.values.anomaly}
+                        value={formik.values.risk}
                         onChange={(event) => {
-                          formik.setFieldValue('anomaly', event.target.value);
+                          formik.setFieldValue('risk', event.target.value);
                         }}
-                        error={formik.touched.anomaly && Boolean(formik.errors.anomaly)}
+                        error={formik.touched.risk && Boolean(formik.errors.risk)}
                       >
                         <MenuItem value="">None</MenuItem>
-                        <MenuItem value={20}>Estatus 1</MenuItem>
-                        <MenuItem value={30}>Estatus 2</MenuItem>
-                        <MenuItem value={40}>Estatus 3</MenuItem>
+                        <MenuItem value={10}>Poco Riego</MenuItem>
+                        <MenuItem value={20}>Riesgo Medio</MenuItem>
+                        <MenuItem value={30}>Riesgo Alto</MenuItem>
+                        <MenuItem value={40}>Riesgo Muy Alto</MenuItem>
+                        <MenuItem value={50}>Riesgo Extremo</MenuItem>
                       </Select>
                     </FormControl>
                     <TextField
@@ -183,7 +160,9 @@ const FormAdd = ({ onClose, open, title }) => {
 
       <DialogActions>
         <Button onClick={handleCloseWithReset}>Cancelar</Button>
-        <Button onClick={formik.handleSubmit}>Añadir</Button>
+        <LoadingButton loading={loading} onClick={formik.handleSubmit}>
+          Añadir
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );
@@ -193,6 +172,7 @@ FormAdd.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   title: PropTypes.object.isRequired,
+  onConfirm: PropTypes.func.isRequired,
 };
 
 export default FormAdd;

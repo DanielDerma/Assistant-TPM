@@ -15,7 +15,7 @@ import {
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { LoadingButton } from '@mui/lab';
-import { getLocations, updateUser } from '../../services/firebaseFunctions';
+import { getCompanies, updateUser } from '../../../services/firebaseFunctions';
 
 TableAdd.propTypes = {
   open: PropTypes.bool,
@@ -29,7 +29,7 @@ export default function TableAdd({ open, onClose, preview }) {
 
   useEffect(() => {
     setLoading(true);
-    getLocations().then((data) => {
+    getCompanies().then((data) => {
       setMenuItems(data);
       setLoading(false);
     });

@@ -22,9 +22,7 @@ import Iconify from '../components/Iconify';
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
-import FormAddNewUser from '../components/ModalForm/AddUser';
-import FormEditUser from '../components/ModalForm/EditUser';
-import FormDeleteUser from '../components/ModalForm/DeleteUser';
+import { DeleteUser, AddUser, EditUser } from '../components/ModalForm/admin';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/admin';
 // mock
 import { getUsers } from '../services/firebaseFunctions';
@@ -69,7 +67,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.fname.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(
+      array,
+      (_user) =>
+        _user.fname.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        _user.lname.toLowerCase().indexOf(query.toLowerCase()) !== -1
+    );
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -192,9 +195,9 @@ export default function User() {
 
   return (
     <Page title="Admin">
-      <FormAddNewUser open={openNewUser} onClose={handleCloseNewUser} />
-      <FormEditUser open={openEdit} onClose={handleCloseEdit} preview={preview} />
-      <FormDeleteUser open={openDelete} onClose={handleCloseDelete} preview={preview} />
+      <AddUser open={openNewUser} onClose={handleCloseNewUser} />
+      <EditUser open={openEdit} onClose={handleCloseEdit} preview={preview} />
+      <DeleteUser open={openDelete} onClose={handleCloseDelete} preview={preview} />
       <FilterSidebar isOpenFilter={openFilter} onCloseFilter={handleCloseFilter} />
       <Container maxWidth="xl">
         <Stack direction="row" justifyContent="space-between" mb={5}>
@@ -231,7 +234,15 @@ export default function User() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { fname, lname, age, contactAdd, email, company, password } = row;
+                    const {
+                      fname,
+                      lname,
+                      age,
+                      contactAdd,
+                      email,
+                      company: { title, id: idCompany },
+                      password,
+                    } = row;
                     const isItemSelected = selected.indexOf(email) !== -1;
 
                     return (
@@ -246,7 +257,7 @@ export default function User() {
                         <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
-                        <TableCell align="left">{!company ? 'Admin' : company}</TableCell>
+                        <TableCell align="left">{idCompany === 'admin' ? 'Admin' : title}</TableCell>
                         <TableCell align="left">{fname}</TableCell>
                         <TableCell align="left">{lname}</TableCell>
                         <TableCell align="left">{age}</TableCell>
@@ -264,7 +275,7 @@ export default function User() {
                   })}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
+                      <TableCell colSpan={9} />
                     </TableRow>
                   )}
                 </TableBody>
@@ -272,7 +283,7 @@ export default function User() {
                 {isUserNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
                         <SearchNotFound searchQuery={filterName} />
                       </TableCell>
                     </TableRow>

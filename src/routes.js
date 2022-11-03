@@ -29,9 +29,9 @@ export default function Router() {
           element: <Navigate to="/dashboard/add" replace />,
           index: true,
         },
-        { path: 'add', element: <Add /> },
-        { path: 'filter', element: <Filter /> },
-        { path: 'export', element: <Export /> },
+        { path: 'add', element: <Add isAdmin={isAdmin} /> },
+        { path: 'filter', element: <Filter isAdmin={isAdmin} /> },
+        { path: 'export', element: <Export isAdmin={isAdmin} /> },
         { path: 'app', element: <App isAdmin={isAdmin} /> },
         { path: 'admin', element: isAdmin ? <Admin /> : <Navigate to="/404" /> },
         {

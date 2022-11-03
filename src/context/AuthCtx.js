@@ -49,9 +49,9 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     infoUser,
-    isAuthenticated: !!infoUser,
-    userCompany: infoUser?.userCompany,
-    isAdmin: infoUser?.userCompany === 'admin',
+    isAuthenticated: Boolean(infoUser),
+    company: infoUser?.company,
+    isAdmin: infoUser?.company?.id === 'admin',
     login,
     logout,
   };

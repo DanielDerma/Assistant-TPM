@@ -1,8 +1,5 @@
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
 import PropTypes from 'prop-types';
 import { Alert, Grid, IconButton, Typography } from '@mui/material';
 import { useState } from 'react';
@@ -10,16 +7,16 @@ import { Box } from '@mui/system';
 import ClearIcon from '@mui/icons-material/Clear';
 import StepperAddCompany from '../StepperAddCompany';
 import StepperManage from '../StepperManage';
-import { createFromCompany } from '../../services/firebaseFunctions';
 
 AddCompany.propTypes = {
   open: PropTypes.bool.isRequired,
+  handleData: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
 };
 
 // formik form is in StepperManage
-export default function AddCompany({ open, onClose, title }) {
+export default function AddCompany({ open, onClose, title, handleData }) {
   const [stepper, setStepper] = useState([]);
 
   const closeWithReset = () => {
@@ -31,7 +28,7 @@ export default function AddCompany({ open, onClose, title }) {
     <Dialog open={open} onClose={closeWithReset} maxWidth="md" fullWidth sx={{ minHeight: 700 }}>
       <Box sx={{ mx: 3, mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5">{title}</Typography>
-        <IconButton color="error">
+        <IconButton color="error" onClick={closeWithReset}>
           <ClearIcon />
         </IconButton>
       </Box>
@@ -47,7 +44,7 @@ export default function AddCompany({ open, onClose, title }) {
             </Grid>
           )}
           <Grid item md={12} sm={12}>
-            <StepperManage steps={stepper} />
+            <StepperManage steps={stepper} handleData={handleData} />
           </Grid>
         </Grid>
       </DialogContent>
