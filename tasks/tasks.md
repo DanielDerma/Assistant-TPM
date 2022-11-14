@@ -20,13 +20,14 @@
 
 - [x] generar funcion para exportar
 - [x] exportar a excel
-- [] exportar para imprimir o pdf
 
-### admin
+### admin 14:20
 
-- [] select company in edit
-- [] delete, add refresh and fix close reset usestate
-- [] search
+- [x] select company in edit
+- [x] delete, add refresh and fix close reset usestate
+- [x] search
+
+15:22
 
 ### manage
 
@@ -34,4 +35,20 @@
 - [] breadboard
 - no permitir last step
 
-... luego trabajar con funcionalidad admin
+### admin
+
+- [] form add image
+- [] display url sidebar
+
+### add
+
+- [x] add company change folio
+
+### filter
+
+- [x] search by folio, also name
+- [x] done alert
+
+### export
+
+- [x] prevent export if no data

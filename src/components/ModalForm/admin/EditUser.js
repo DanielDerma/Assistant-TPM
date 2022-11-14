@@ -21,12 +21,13 @@ TableAdd.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   preview: PropTypes.object,
+  onFinish: PropTypes.func,
 };
 
-export default function TableAdd({ open, onClose, preview }) {
+export default function TableAdd({ open, onClose, preview, onFinish }) {
   const [loading, setLoading] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
-
+  console.log({ menuItems });
   useEffect(() => {
     setLoading(true);
     getCompanies().then((data) => {
@@ -54,8 +55,10 @@ export default function TableAdd({ open, onClose, preview }) {
       company: Yup.string().max(20, 'Máximo 20 letras').required('Requerido'),
     }),
     onSubmit: (values) => {
+      const company = menuItems.find((item) => item.title === values.company);
       setLoading(true);
-      updateUser(preview.email, values).then(() => {
+      updateUser(preview.email, { ...values, company }).then(() => {
+        onFinish();
         handleCloseWithReset();
         setLoading(false);
       });
@@ -69,8 +72,13 @@ export default function TableAdd({ open, onClose, preview }) {
 
   useEffect(() => {
     if (preview) {
-      const { email, password, ...rest } = preview; //eslint-disable-line
-      formik.setValues(rest, false);
+      const {
+        email,
+        password,
+        company: { title },
+        ...rest
+      } = preview; //eslint-disable-line
+      formik.setValues({ ...rest, company: title }, false);
     }
   }, [preview]); //eslint-disable-line
 

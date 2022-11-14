@@ -16,13 +16,14 @@ import {
   TableContainer,
   TablePagination,
   Button,
+  Skeleton,
 } from '@mui/material';
 import Iconify from '../components/Iconify';
 // components
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
-import { DeleteUser, AddUser, EditUser } from '../components/ModalForm/admin';
+import { DeleteUser, DeleteSelectedUser, AddUser, EditUser } from '../components/ModalForm/admin';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/admin';
 // mock
 import { getUsers } from '../services/firebaseFunctions';
@@ -59,8 +60,12 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-function applySortFilter(array, comparator, query) {
-  const stabilizedThis = array.map((el, index) => [el, index]);
+function applySortFilter(array, comparator, query, config) {
+  let newArray = [...array];
+  if (config.length !== 0) {
+    newArray = filter(array, (o) => config.includes(o.company.id));
+  }
+  const stabilizedThis = newArray.map((el, index) => [el, index]);
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -68,7 +73,7 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(
-      array,
+      newArray,
       (_user) =>
         _user.fname.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
         _user.lname.toLowerCase().indexOf(query.toLowerCase()) !== -1
@@ -88,6 +93,8 @@ export default function User() {
 
   const [filterName, setFilterName] = useState('');
 
+  const [config, setConfig] = useState([]);
+
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [openFilter, setOpenFilter] = useState(false);
@@ -100,16 +107,28 @@ export default function User() {
   const [loading, setLoading] = useState(true);
 
   const [openDelete, setOpenDelete] = useState(false);
+  const [openDeleteAll, setOpenDeleteAll] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
   useEffect(() => {
+    getUser();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const getUser = () => {
     setLoading(true);
+    setSelected([]);
     getUsers().then((data) => {
-      console.log(data);
       setData(data);
       setLoading(false);
     });
-  }, []);
+  };
+
+  const handleOpenDeleteAll = () => {
+    setOpenDeleteAll(true);
+  };
+  const handleCloseDeleteAll = () => {
+    setOpenDeleteAll(false);
+  };
 
   const handleOpenDelete = (email) => {
     setPreview(email);
@@ -175,29 +194,29 @@ export default function User() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredUsers.length) : 0;
 
-  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(data, getComparator(order, orderBy), filterName, config);
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isUserNotFound = !loading && filteredUsers.length === 0;
 
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
 
-  const handleCloseFilter = () => {
+  const handleCloseFilter = (config) => {
+    setConfig(config);
     setOpenFilter(false);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  console.log({ selected });
 
   return (
     <Page title="Admin">
-      <AddUser open={openNewUser} onClose={handleCloseNewUser} />
-      <EditUser open={openEdit} onClose={handleCloseEdit} preview={preview} />
-      <DeleteUser open={openDelete} onClose={handleCloseDelete} preview={preview} />
+      <AddUser onFinish={getUser} open={openNewUser} onClose={handleCloseNewUser} />
+      <EditUser onFinish={getUser} open={openEdit} onClose={handleCloseEdit} preview={preview} />
+      <DeleteUser onFinish={getUser} open={openDelete} onClose={handleCloseDelete} preview={preview} />
+      <DeleteSelectedUser onFinish={getUser} open={openDeleteAll} onClose={handleCloseDeleteAll} listId={selected} />
       <FilterSidebar isOpenFilter={openFilter} onCloseFilter={handleCloseFilter} />
       <Container maxWidth="xl">
         <Stack direction="row" justifyContent="space-between" mb={5}>
@@ -214,6 +233,7 @@ export default function User() {
         </Stack>
         <Card>
           <UserListToolbar
+            onDeleteAll={handleOpenDeleteAll}
             onOpenFilter={handleOpenFilter}
             numSelected={selected.length}
             filterName={filterName}
@@ -227,7 +247,7 @@ export default function User() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={data.length}
+                  rowCount={filteredUsers.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -280,6 +300,18 @@ export default function User() {
                   )}
                 </TableBody>
 
+                {loading && (
+                  <TableBody>
+                    {[1, 2, 3, 4].map((i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={9}>
+                          <Skeleton variant="rectangular" width="100%" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                )}
+
                 {isUserNotFound && (
                   <TableBody>
                     <TableRow>
@@ -296,7 +328,7 @@ export default function User() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={data.length}
+            count={filteredUsers.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

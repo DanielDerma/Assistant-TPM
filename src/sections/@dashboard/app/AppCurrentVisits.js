@@ -66,10 +66,11 @@ export default function AppCurrentVisits({ title, subheader, chartColors, chartD
     },
   });
 
+  console.log({ chartData });
+
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
-
       <ChartWrapperStyle dir="ltr">
         <ReactApexChart type="pie" series={chartSeries} options={chartOptions} height={280} />
       </ChartWrapperStyle>

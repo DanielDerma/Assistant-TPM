@@ -23,6 +23,9 @@ export const getCurrentUser = async (uid) => {
   return userSnap.data();
 };
 
+const URL =
+  process.env.NODE_ENV === 'development' ? process.env.REACT_APP_URL_PRODUCCION : process.env.REACT_APP_URL_DEVELOP;
+
 export const getCompanies = async () => {
   const docRef = query(collection(firestore, 'company'));
   const snapshot = await getDocs(docRef);
@@ -93,9 +96,11 @@ export const getFeed = async (data) => {
 };
 
 const getCurrentCounterError = async (idCompany) => {
+  console.log({ idCompany });
   const docRef = doc(firestore, 'utils', 'counterErrors');
   const snapshot = await getDoc(docRef);
-  const counter = snapshot.data()?.[idCompany];
+  const counter = Number(snapshot.data()?.[idCompany]);
+  console.log({ counter });
   // check if counter is undefined
   const newCounter = Number.isInteger(counter) ? counter + 1 : 1;
 
@@ -110,8 +115,7 @@ export const createError = async (values) => {
   const { structure, dateAndTime: dateAndTimeNoFirebase, risk, description, image, type } = values;
 
   const structureTitles = structure.map((elem) => elem.title);
-
-  const idCompany = structureTitles[0].id;
+  const idCompany = structure[0].id;
 
   const counter = await getCurrentCounterError(idCompany);
 
@@ -246,32 +250,52 @@ export const getUsers = async () => {
 };
 
 export const createUser = async (values, currentUser) => {
-  const docRef = doc(firestore, 'user', values.email);
+  const { profileImg } = values;
 
+  const pathImg = `userProfileImg/${values.email}`;
+  const storageRef = ref(storage, pathImg);
+  await uploadBytes(storageRef, profileImg);
+  const imageUrl = await getDownloadURL(storageRef);
+
+  const docRef = doc(firestore, 'user', values.email);
+  await setDoc(docRef, { ...values, profileImg: imageUrl });
+  const idToken = await currentUser.getIdToken();
+  const response = await fetch(`${URL}/user`, {
+    method: 'POST',
+    body: JSON.stringify(values),
+    headers: new Headers({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    }),
+  });
+  return response;
+};
+
+export const deleteUser = async (email, currentUser) => {
   try {
+    const docRef = doc(firestore, 'user', email);
     const idToken = await currentUser.getIdToken();
-    await fetch('https://us-central1-project2-5eb0d.cloudfunctions.net/app/users', {
-      method: 'POST',
-      body: JSON.stringify(values),
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${idToken}`,
-      }),
+    await deleteDoc(docRef);
+    await fetch(`${URL}/users/${email}`, {
+      method: 'DELETE',
+      headers: new Headers({ 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` }),
+      body: JSON.stringify(email),
     });
-    await setDoc(docRef, values);
   } catch (err) {
     console.error(err);
   }
 };
 
-export const deleteUser = async (email) => {
-  const docRef = doc(firestore, 'user', email);
+export const deleteUsers = async (listId, currentUser) => {
   try {
-    await deleteDoc(docRef);
-    await fetch(`https://us-central1-project2-5eb0d.cloudfunctions.net/app/users/${email}`, {
+    const res = listId.map((email) => deleteDoc(doc(firestore, 'user', email)));
+    const idToken = await currentUser.getIdToken();
+    console.log(res);
+    await Promise.all(res);
+    await fetch(`${URL}/users`, {
       method: 'DELETE',
-      headers: new Headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(email),
+      headers: new Headers({ 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` }),
+      body: JSON.stringify(listId),
     });
   } catch (err) {
     console.error(err);

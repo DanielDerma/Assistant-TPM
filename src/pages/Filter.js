@@ -15,6 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 // components
+import Alert from '../components/Alert';
 import Page from '../components/Page';
 import Scrollbar from '../components/Scrollbar';
 import SearchNotFound from '../components/SearchNotFound';
@@ -63,10 +64,7 @@ function applySortFilter(array, config, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(
-      arrayConfigWithCardsAndRisks,
-      (_user) => _user.structure?.[0].toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+    return filter(arrayConfigWithCardsAndRisks, (item) => item.id.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -103,6 +101,9 @@ export default function User({ isAdmin }) {
 
   const [loading, setLoading] = useState(true);
 
+  const [openAlert, setOpenAlert] = useState(false);
+  const [msgAlert, setMsgAlert] = useState('');
+
   useEffect(() => {
     getErrors();
   }, []); //  eslint-disable-line react-hooks/exhaustive-deps
@@ -114,6 +115,24 @@ export default function User({ isAdmin }) {
       setData(data);
       setLoading(false);
     });
+  };
+
+  const handleFinishDone = (id) => {
+    setOpenDone(false);
+    setOpenAlert(true);
+    setMsgAlert(`Se ha realizado la tarea con éxito, id: ${id}`);
+    getErrors();
+  };
+
+  const handleFinishDoneAll = (paths) => {
+    const pathsSelected = filteredUsers.filter((elem) => paths.some((e) => e === elem.path));
+    const selectedElements = pathsSelected.map((e) => e.id);
+    const selectedElementsString = selectedElements.join(', ');
+
+    setOpenDone(false);
+    setOpenAlert(true);
+    setMsgAlert(`Se ha realizado la tareas con éxito, ids: ${selectedElementsString}`);
+    getErrors();
   };
 
   useEffect(() => {
@@ -212,13 +231,19 @@ export default function User({ isAdmin }) {
   const handleCloseDone = () => {
     setOpenDone(false);
   };
+  const handleCloseAlert = () => setOpenAlert(false);
+
+  console.log(selected);
 
   return (
     <Page title="Filtrado">
+      <Alert open={openAlert} onClose={handleCloseAlert} severity="success">
+        {msgAlert}
+      </Alert>
       <FilterSidebar isOpenFilter={openFilter} onCloseFilter={handleCloseFilter} />
       <MoreInfo open={openMoreInfo} onClose={handleCloseMoreInfo} selectedRow={selectedRow} />
-      <Done open={openDone} onClose={handleCloseDone} selectedRow={selectedRow} onGetErrors={getErrors} />
-      <DoneAll open={openDeleteAll} onClose={handleCloseDeleteAll} selected={selected} onGetErrors={getErrors} />
+      <Done open={openDone} onClose={handleCloseDone} selectedRow={selectedRow} onFinish={handleFinishDone} />
+      <DoneAll open={openDeleteAll} onClose={handleCloseDeleteAll} selected={selected} onFinish={handleFinishDoneAll} />
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
           Filtrado
@@ -239,7 +264,7 @@ export default function User({ isAdmin }) {
                   order={order}
                   orderBy={orderBy}
                   headLabel={headersTable}
-                  rowCount={data.length}
+                  rowCount={filteredUsers.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -301,7 +326,7 @@ export default function User({ isAdmin }) {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={data.length}
+            count={filteredUsers.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

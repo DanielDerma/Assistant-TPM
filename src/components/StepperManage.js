@@ -17,9 +17,10 @@ import { createFromCompany } from '../services/firebaseFunctions';
 StepperManage.propTypes = {
   steps: PropTypes.array,
   handleData: PropTypes.func,
+  onClose: PropTypes.func,
 };
 
-export default function StepperManage({ steps, handleData }) {
+export default function StepperManage({ steps, handleData, onClose }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [imgPreview, setImgPreview] = React.useState('');
 
@@ -50,9 +51,11 @@ export default function StepperManage({ steps, handleData }) {
         })
         .catch((err) => {
           console.log(err);
-        }).finally(() => {
-          handleData()
         })
+        .finally(() => {
+          handleData();
+          onClose();
+        });
     },
   });
 

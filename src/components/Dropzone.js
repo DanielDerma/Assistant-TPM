@@ -8,6 +8,7 @@ const baseStyle = {
   alignItems: 'center',
   padding: '20px',
   borderWidth: 2,
+  width: '100%',
   borderRadius: 2,
   borderColor: '#eeeeee',
   borderStyle: 'dashed',
@@ -29,13 +30,12 @@ const rejectStyle = {
   borderColor: '#ff1744',
 };
 
-export default function StyledDropzone({ onFinish, onPreview }) {
+export default function Dropzone({ onFinish, styleContainer = {} }) {
   const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } = useDropzone({
     accept: { 'image/*': [] },
     maxFiles: 1,
     disabled: false,
     onDrop: (acceptedFiles) => {
-      onPreview(acceptedFiles[0]);
       onFinish(acceptedFiles[0]);
     },
   });
@@ -51,7 +51,7 @@ export default function StyledDropzone({ onFinish, onPreview }) {
   );
 
   return (
-    <div className="container">
+    <div className="container" style={styleContainer}>
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} disabled />
         <p>Click o suelta una imagen</p>

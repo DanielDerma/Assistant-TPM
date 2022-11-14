@@ -57,6 +57,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  console.log(infoUser?.profileImg);
+
   const renderContent = (
     <Scrollbar
       sx={{
@@ -71,7 +73,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
       <Box sx={{ mb: 2, mx: 2.5 }}>
         <Link underline="none" component={RouterLink} to="#">
           <AccountStyle>
-            <Avatar src={account.photoURL} alt="photoURL" sx={{ width: 90, height: 90 }} />
+            <Avatar src={infoUser?.profileImg} alt="photoURL" sx={{ width: 90, height: 90 }} />
             <Box>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
                 {`${infoUser.fname} ${infoUser.lname}`}

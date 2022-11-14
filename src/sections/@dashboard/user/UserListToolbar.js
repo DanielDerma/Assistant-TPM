@@ -56,7 +56,7 @@ export default function UserListToolbar({ numSelected, filterLocation, onFilterL
         <SearchStyle
           value={filterLocation}
           onChange={onFilterLocation}
-          placeholder="Search id..."
+          placeholder="Buscar Folio..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />

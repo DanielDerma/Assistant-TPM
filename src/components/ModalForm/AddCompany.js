@@ -44,7 +44,7 @@ export default function AddCompany({ open, onClose, title, handleData }) {
             </Grid>
           )}
           <Grid item md={12} sm={12}>
-            <StepperManage steps={stepper} handleData={handleData} />
+            <StepperManage steps={stepper} handleData={handleData} onClose={onClose} />
           </Grid>
         </Grid>
       </DialogContent>

@@ -2,20 +2,23 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { deleteError } from '../../../services/firebaseFunctions';
+import { LoadingButton } from '@mui/lab';
+import { deleteUsers } from '../../../services/firebaseFunctions';
+import useAuth from '../../../hooks/useAuth';
 
-Done.propTypes = {
+DeleteAllUsers.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  onFinish: PropTypes.func,
-  selectedRow: PropTypes.object,
+  listId: PropTypes.array,
 };
 
-export default function Done({ open, onClose, onFinish, selectedRow }) {
+export default function DeleteAllUsers({ open, onClose, listId, onFinish }) {
+  const { currentUser } = useAuth();
   const [confirm, setConfirm] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleConfirm = (e) => {
-    if (e === 'terminado') {
+    if (e === 'eliminar') {
       setConfirm(false);
     } else {
       setConfirm(true);
@@ -23,21 +26,21 @@ export default function Done({ open, onClose, onFinish, selectedRow }) {
   };
 
   const handleSubmit = () => {
-    const { path, id } = selectedRow;
-
-    deleteError(path).then(() => {
+    setLoading(true);
+    deleteUsers(listId, currentUser).then(() => {
       setConfirm(true);
-      onFinish(id);
+      setLoading(false);
+      onFinish();
       onClose();
     });
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Terminar</DialogTitle>
+      <DialogTitle>Delete</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Confirma escribiendo <strong>&quot;terminado&quot;</strong> en el siguiente campo
+          Confirma escribiendo <strong>&quot;eliminar&quot;</strong> en el siguiente campo
         </DialogContentText>
         <TextField
           autoFocus
@@ -53,9 +56,9 @@ export default function Done({ open, onClose, onFinish, selectedRow }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} disabled={confirm}>
-          Terminado
-        </Button>
+        <LoadingButton loading={loading} onClick={handleSubmit} disabled={confirm}>
+          Eliminar
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

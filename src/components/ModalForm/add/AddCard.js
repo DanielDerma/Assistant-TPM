@@ -53,7 +53,6 @@ const FormAdd = ({ onClose, open, title, onConfirm }) => {
       structure: Yup.array().test('structure', 'Requerido', (value) => value.length > 0),
     }),
     onSubmit: (values) => {
-      console.log({ values });
       setLoading(true);
       createError(values)
         .then((elem) => {
@@ -81,10 +80,8 @@ const FormAdd = ({ onClose, open, title, onConfirm }) => {
     formik.setFieldValue('dateAndTime', value);
   };
   const handleImage = (image) => {
-    formik.setFieldValue('image', image);
-  };
-  const handleImagePreview = (image) => {
     setImgPreview(URL.createObjectURL(image));
+    formik.setFieldValue('image', image);
   };
 
   const handleStructure = (value) => {
@@ -151,7 +148,7 @@ const FormAdd = ({ onClose, open, title, onConfirm }) => {
           </Grid>
           <Grid item xs={12} md={4}>
             <Box sx={{ width: '100%' }}>
-              <Dropzone onFinish={handleImage} onPreview={handleImagePreview} />
+              <Dropzone onFinish={handleImage} />
               <Image src={imgPreview} shift="top" distance="2rem" shiftDuration={320} sx={{ height: 250 }} />
             </Box>
           </Grid>

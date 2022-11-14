@@ -1,6 +1,7 @@
 // scroll bar
 import 'simplebar/src/simplebar.css';
 
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -19,7 +20,9 @@ root.render(
   <HelmetProvider>
     <AuthProvider>
       <BrowserRouter>
-        <App />
+        <StrictMode>
+          <App />
+        </StrictMode>
       </BrowserRouter>
     </AuthProvider>
   </HelmetProvider>

@@ -2,19 +2,24 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { Button, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { deleteUser } from '../../../services/firebaseFunctions';
+import useAuth from '../../../hooks/useAuth';
 
 TableDelete.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   preview: PropTypes.object,
+  onFinish: PropTypes.func,
 };
 
-export default function TableDelete({ open, onClose, preview }) {
+export default function TableDelete({ open, onClose, preview, onFinish }) {
   const [confirm, setConfirm] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { currentUser } = useAuth();
 
   const handleConfirm = (e) => {
-    if (e === 'eliminar') {
+    if (e === preview?.email) {
       setConfirm(false);
     } else {
       setConfirm(true);
@@ -22,9 +27,12 @@ export default function TableDelete({ open, onClose, preview }) {
   };
 
   const handleSubmit = () => {
+    setLoading(true);
     const { email } = preview;
-    deleteUser(email).then(() => {
+    deleteUser(email, currentUser).then(() => {
+      onFinish();
       setConfirm(true);
+      setLoading(false);
       onClose();
     });
   };
@@ -34,7 +42,7 @@ export default function TableDelete({ open, onClose, preview }) {
       <DialogTitle>Delete</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Confirma escribiendo <strong>&quot;eliminar&quot;</strong> en el siguiente campo
+          Confirma escribiendo <strong>&quot;{preview?.email}&quot;</strong> en el siguiente campo
         </DialogContentText>
         <TextField
           autoFocus
@@ -50,9 +58,9 @@ export default function TableDelete({ open, onClose, preview }) {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} disabled={confirm}>
+        <LoadingButton loading={loading} onClick={handleSubmit} disabled={confirm}>
           Eliminar
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

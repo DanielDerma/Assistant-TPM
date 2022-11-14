@@ -8,16 +8,16 @@ import { deleteAllError } from '../../../services/firebaseFunctions';
 DoneAll.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  onGetErrors: PropTypes.func,
+  onFinish: PropTypes.func,
   selected: PropTypes.array,
 };
 
-export default function DoneAll({ open, onClose, selected, onGetErrors }) {
+export default function DoneAll({ open, onClose, selected, onFinish }) {
   const [confirm, setConfirm] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const handleConfirm = (e) => {
-    if (e === 'eliminar todo') {
+    if (e === 'eliminar seleccionados') {
       setConfirm(false);
     } else {
       setConfirm(true);
@@ -27,7 +27,7 @@ export default function DoneAll({ open, onClose, selected, onGetErrors }) {
   const handleSubmit = () => {
     setLoading(true);
     deleteAllError(selected).then(() => {
-      onGetErrors();
+      onFinish(selected);
       setLoading(false);
       onClose();
     });
@@ -35,10 +35,10 @@ export default function DoneAll({ open, onClose, selected, onGetErrors }) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Terminar Todo</DialogTitle>
+      <DialogTitle>Terminar seleccionados</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Confirma escribiendo <strong>&quot;eliminar todo&quot;</strong> en el siguiente campo
+          Confirma escribiendo <strong>&quot;eliminar seleccionados&quot;</strong> en el siguiente campo
         </DialogContentText>
         <TextField
           autoFocus

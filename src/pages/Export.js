@@ -1,11 +1,10 @@
-import { Button, Container, Typography } from '@mui/material';
+import { Container, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { BlobProvider } from '@react-pdf/renderer';
+
 import { getLocation } from '../services/firebaseFunctions';
 import ExportForm from '../components/ExportForm';
 import Page from '../components/Page';
 import useAuth from '../hooks/useAuth';
-import DocExcel from '../components/DocExcel';
 
 const Export = () => {
   const [headers, setHeaders] = useState([]);
@@ -28,13 +27,6 @@ const Export = () => {
           Selecciona las características que desea ver en el documento.
         </Typography>
         <ExportForm structureHeaders={headers} />
-        <BlobProvider document={<DocExcel />}>
-          {({ url }) => (
-            <a href={url} target="_blank" rel="noreferrer">
-              Open in new tab
-            </a>
-          )}
-        </BlobProvider>
       </Container>
     </Page>
   );

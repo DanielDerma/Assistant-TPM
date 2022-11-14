@@ -28,6 +28,7 @@ const ExportForm = ({ structureHeaders }) => {
   const yesterday = today.subtract(1, 'day');
 
   const [openAlert, setOpenAlert] = useState(false);
+  const [isErrorAlert, setIsErrorAlert] = useState(false);
   const [idPreview, setIdPreview] = useState(false);
 
   const formik = useFormik({
@@ -44,10 +45,16 @@ const ExportForm = ({ structureHeaders }) => {
       structure: Yup.array().test('structure', 'Requerido', (value) => value.length > 0),
     }),
     onSubmit: (values) => {
-      const dateI = values.dateI.format('YYYY-MM-DD');
-      const dateF = values.dateF.format('YYYY-MM-DD');
-
       getSubCollectionErrorsWithParams(values).then((arr) => {
+        if (arr.length === 0) {
+          setOpenAlert(true);
+          setIsErrorAlert(true);
+          setIdPreview(arr);
+          return;
+        }
+
+        const dateI = values.dateI.format('YYYY-MM-DD');
+        const dateF = values.dateF.format('YYYY-MM-DD');
         const orderArrWithStructureHeaders = arr.map(
           ({ id, structure, date, time, risk, description, image, type }) => ({
             id,
@@ -76,12 +83,16 @@ const ExportForm = ({ structureHeaders }) => {
           return `${prev}-${title}`;
         }, '');
 
-        const path = `Errores_${titleStructure}_entre_${dateI}_y_${dateF}_riesgo_${nameRisk()}`;
+        const path = `Errores_${titleStructure}_entre_${dateI}_y_${dateF}_riesgo_${nameRisk()}.xlsx`;
 
         const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.json_to_sheet(orderArrWithStructureHeaders);
         XLSX.utils.book_append_sheet(wb, ws, 'Errores');
-        XLSX.writeFile(wb, `${path}.xlsx`);
+        XLSX.writeFile(wb, path);
+
+        setOpenAlert(true);
+        setIsErrorAlert(false);
+        setIdPreview(path);
       });
     },
   });
@@ -97,20 +108,14 @@ const ExportForm = ({ structureHeaders }) => {
   };
 
   const handleCloseAlert = () => setOpenAlert(false);
-  const handleOpenAlert = (id) => {
-    setIdPreview(id);
-    setOpenAlert(true);
-  };
 
   const difference = formik.values.dateF.diff(formik.values.dateI, 'day');
 
   return (
     <Box>
-      <Alert
-        open={openAlert}
-        onClose={handleCloseAlert}
-        severity="success"
-      >{`Creado con éxito, Folio: ${idPreview}`}</Alert>
+      <Alert open={openAlert} onClose={handleCloseAlert} severity={isErrorAlert ? 'error' : 'success'}>
+        {isErrorAlert ? 'No hay datos!, intenta con otros parámetros.' : `Creado con éxito, Folio: ${idPreview}`}
+      </Alert>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Stack
           spacing={{ xs: 1, sm: 3 }}

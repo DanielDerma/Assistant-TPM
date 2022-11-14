@@ -14,9 +14,10 @@ AppConversionRates.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
   chartData: PropTypes.array.isRequired,
+  series: PropTypes.array.isRequired,
 };
 
-export default function AppConversionRates({ title, subheader, chartData, ...other }) {
+export default function AppConversionRates({ title, subheader, chartData, series, ...other }) {
   const chartLabels = chartData.map((i) => i.label);
 
   const chartSeries = chartData.map((i) => i.value);
@@ -42,33 +43,12 @@ export default function AppConversionRates({ title, subheader, chartData, ...oth
     },
   });
 
-  console.log('admin', chartOptions);
-
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box sx={{ mx: 3 }} dir="ltr">
-        <ReactApexChart
-          type="bar"
-          series={[
-            {
-              name: 'Mantenimiento',
-              data: [44, 55, 41, 37, 22, 43, 21],
-            },
-            {
-              name: 'Operación',
-              data: [53, 32, 33, 52, 13, 43, 32],
-            },
-            {
-              name: 'Seguridad',
-              data: [12, 17, 11, 9, 15, 11, 20],
-            },
-          ]}
-          options={chartOptions}
-          height={364}
-        />
-        {/* <ReactApexChart type="bar" series={[{ data: chartSeries }]} options={chartOptions} height={364} /> */}
+        <ReactApexChart type="bar" series={series} options={chartOptions} height={364} />
       </Box>
     </Card>
   );

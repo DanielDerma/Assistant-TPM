@@ -6,7 +6,7 @@ import StepLabel from '@mui/material/StepLabel';
 import StepContent from '@mui/material/StepContent';
 import Button from '@mui/material/Button';
 import { LoadingButton } from '@mui/lab';
-import { FormControl, MenuItem, Select } from '@mui/material';
+import { FormControl, MenuItem, Select, Skeleton } from '@mui/material';
 import PropTypes from 'prop-types';
 import { getFeed, getLocation } from '../services/firebaseFunctions';
 import useAuth from '../hooks/useAuth';
@@ -23,12 +23,14 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
   const [value, setValue] = React.useState('');
   const [valueId, setValueId] = React.useState('');
   const [loading, setLoading] = React.useState(true);
+  const [loadingBtn, setLoadingBtn] = React.useState(true);
   const [menuItems, setMenuItems] = React.useState([]);
   const [arrayCompany, setArrayCompany] = React.useState([{ id: company.id, title: company.title }]);
 
   const [steps, setSteps] = React.useState([]);
 
   React.useEffect(() => {
+    setLoading(true);
     getLocation(company.id)
       .then((steps) => {
         const stepsForForm = steps.slice(1);
@@ -46,14 +48,14 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
   }, [arrayCompany]);
 
   const getMenuItems = async (data) => {
-    setLoading(true);
+    setLoadingBtn(true);
     try {
       const res = await getFeed(data);
       setMenuItems(res);
-      setLoading(false);
+      setLoadingBtn(false);
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      setLoadingBtn(false);
     }
   };
 
@@ -78,9 +80,19 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
   };
 
   const handleValueId = (selectedTitle) => {
-    const { id, label, title } = menuItems.find((item) => item.title === selectedTitle);
+    const { id, title } = menuItems.find((item) => item.title === selectedTitle);
     setValueId({ id, title });
   };
+  // loading skeleton
+  if (loading) {
+    return (
+      <Box sx={{ width: '90%' }}>
+        <Skeleton sx={{ mb: 1, height: 40 }} />
+        <Skeleton sx={{ mb: 1, height: 40 }} />
+        <Skeleton sx={{ mb: 1, height: 40 }} />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -115,7 +127,7 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
                       <MenuItem value="" key="null">
                         <em>None</em>
                       </MenuItem>,
-                      !loading &&
+                      !loadingBtn &&
                         menuItems.map((item) => (
                           <MenuItem key={item.id} value={item.title} onClick={() => handleValueId(item.title)}>
                             {item.title}
