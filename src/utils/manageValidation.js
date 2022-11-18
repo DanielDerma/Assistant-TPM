@@ -28,13 +28,13 @@ export const createCourseInitialValues = (obj) => {
 
 export const createCourseValidationSchema = (obj) => {
   const newObj = {};
-  obj.forEach((elem) => {    
-      newObj[elem.id] = Yup.object().shape({
-        title: Yup.string().required('Campo requerido'),
-        description: Yup.string(),
-        image: Yup.string(),
-        label: Yup.string(),
-      });
+  obj.forEach((elem) => {
+    newObj[elem.id] = Yup.object().shape({
+      title: Yup.string().required('Campo requerido'),
+      description: Yup.string(),
+      image: Yup.string(),
+      label: Yup.string(),
+    });
   });
   return Yup.object().shape(newObj);
 };

@@ -46,12 +46,14 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
+  console.log({ infoUser });
+
   const value = {
     currentUser,
     infoUser,
     isAuthenticated: Boolean(infoUser),
     company: infoUser?.company,
-    isAdmin: infoUser?.company?.id === 'admin',
+    isAdmin: !infoUser?.company,
     login,
     logout,
   };

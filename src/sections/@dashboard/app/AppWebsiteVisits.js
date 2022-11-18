@@ -67,9 +67,9 @@ export default function AppWebsiteVisits({ title, subheader, chartLabels, chartD
               },
             }}
           >
-            {[{ year: 2020 }, { year: 2021 }].map((option) => (
-              <option key={option.year} value={option.year}>
-                {option.year}
+            {[2022, 2021, 2020].map((option) => (
+              <option key={option} value={option}>
+                {option}
               </option>
             ))}
           </TextField>

@@ -57,8 +57,6 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  console.log(infoUser?.profileImg);
-
   const renderContent = (
     <Scrollbar
       sx={{

@@ -36,12 +36,11 @@ AppCurrentVisits.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
   chartColors: PropTypes.arrayOf(PropTypes.string),
-  chartData: PropTypes.array,
+  chartData: PropTypes.array.isRequired,
 };
 
 export default function AppCurrentVisits({ title, subheader, chartColors, chartData, ...other }) {
   const theme = useTheme();
-
   const chartLabels = chartData.map((i) => i.label);
 
   const chartSeries = chartData.map((i) => i.value);
@@ -65,8 +64,6 @@ export default function AppCurrentVisits({ title, subheader, chartColors, chartD
       pie: { donut: { labels: { show: false } } },
     },
   });
-
-  console.log({ chartData });
 
   return (
     <Card {...other}>

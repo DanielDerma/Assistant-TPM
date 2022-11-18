@@ -260,7 +260,7 @@ export default function User() {
                       age,
                       contactAdd,
                       email,
-                      company: { title, id: idCompany },
+                      company: { title },
                       password,
                     } = row;
                     const isItemSelected = selected.indexOf(email) !== -1;
@@ -277,7 +277,7 @@ export default function User() {
                         <TableCell padding="checkbox">
                           <Checkbox checked={isItemSelected} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
-                        <TableCell align="left">{idCompany === 'admin' ? 'Admin' : title}</TableCell>
+                        <TableCell align="left">{!title ? 'Admin' : title}</TableCell>
                         <TableCell align="left">{fname}</TableCell>
                         <TableCell align="left">{lname}</TableCell>
                         <TableCell align="left">{age}</TableCell>

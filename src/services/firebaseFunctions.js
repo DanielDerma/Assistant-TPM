@@ -6,6 +6,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  orderBy,
   query,
   setDoc,
   Timestamp,
@@ -153,6 +154,7 @@ export const createFromCompany = async (data) => {
     const id = nanoid(8);
     urlTemp += `${key}/${id}/`;
     const url = urlTemp.slice(0, -1);
+
     if (key !== 'company') {
       const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
       const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
@@ -170,11 +172,23 @@ export const createFromCompany = async (data) => {
   });
 
   try {
+    // collection company
     const response = await Promise.all(res);
     const locationDoc = response.map((elem) => elem.label);
 
+    // collection locations
     const docRef = doc(firestore, 'locations', response[0].id);
     await setDoc(docRef, { locationDoc });
+
+    // collection utilsDashboard
+    const docRef2 = doc(firestore, 'utilsDashboard', response[0].id);
+    await setDoc(docRef2, {
+      [new Date().getFullYear()]: {
+        maintenance: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        operation: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        security: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      },
+    });
 
     return response;
   } catch (error) {
@@ -195,7 +209,11 @@ export const deleteAllError = (paths) => {
 
 export const getSubCollectionErrors = async (title) => {
   const querySnapshot = await getDocs(
-    query(collectionGroup(firestore, 'errors'), where('structure', 'array-contains', title))
+    query(
+      collectionGroup(firestore, 'errors'),
+      where('structure', 'array-contains', title),
+      orderBy('dateAndTime', 'asc')
+    )
   );
 
   const data = querySnapshot.docs.map((doc) => {
@@ -206,6 +224,14 @@ export const getSubCollectionErrors = async (title) => {
     });
     return { ...doc.data(), date, time, id: doc.id, path: doc.ref.path };
   });
+
+  return data;
+};
+
+export const getErrorsCount = async (id, year) => {
+  const querySnapshot = await getDoc(doc(firestore, 'utilsDashboard', id));
+
+  const data = querySnapshot.docs.map((doc) => doc.data())[year];
 
   return data;
 };

@@ -22,11 +22,9 @@ StepperManage.propTypes = {
 
 export default function StepperManage({ steps, handleData, onClose }) {
   const [activeStep, setActiveStep] = React.useState(0);
-  const [imgPreview, setImgPreview] = React.useState('');
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setImgPreview('');
   };
 
   const handleBack = () => {
@@ -35,10 +33,6 @@ export default function StepperManage({ steps, handleData, onClose }) {
 
   const handleImage = (path, img) => {
     formik.setFieldValue(path, img);
-  };
-
-  const handleImagePreview = (image) => {
-    setImgPreview(URL.createObjectURL(image));
   };
 
   const formik = useFormik({
@@ -99,9 +93,9 @@ export default function StepperManage({ steps, handleData, onClose }) {
                     />
                   </FormControl>
                   <Box sx={{ width: '100%' }}>
-                    <Dropzone onFinish={(image) => handleImage(`${val}.image`, image)} onPreview={handleImagePreview} />
+                    <Dropzone onFinish={(image) => handleImage(`${val}.image`, image)} />
                     <Image
-                      src={imgPreview}
+                      src={formikValue?.image ? URL.createObjectURL(formikValue?.image) : ''}
                       shift="top"
                       distance="2rem"
                       shiftDuration={320}
