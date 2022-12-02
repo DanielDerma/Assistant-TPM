@@ -31,7 +31,7 @@ const cards = [
   },
 ];
 
-export default function DashboardApp() {
+export default function DashboardApp({ isAdmin }) {
   const [open, setOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [idPreview, setIdPreview] = useState(0);
@@ -50,7 +50,7 @@ export default function DashboardApp() {
 
   return (
     <Page title="Añadir">
-      <AddCard onClose={handleClose} open={open} title={title} onConfirm={handleOpenAlert} />
+      <AddCard isAdmin={isAdmin} onClose={handleClose} open={open} title={title} onConfirm={handleOpenAlert} />
       <Alert
         open={openAlert}
         onClose={handleCloseAlert}

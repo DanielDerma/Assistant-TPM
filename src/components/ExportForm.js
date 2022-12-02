@@ -17,19 +17,21 @@ import dayjs from 'dayjs';
 import * as XLSX from 'xlsx';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Stepper from './StepperForm';
 import Excel from '../utils/icons/Excel';
-import { getSubCollectionErrorsWithParams } from '../services/firebaseFunctions';
+import { getSubCollectionErrorsWithParams, getLocation } from '../services/firebaseFunctions';
+import useAuth from '../hooks/useAuth';
 import Alert from './Alert';
 
-const ExportForm = ({ structureHeaders }) => {
+const ExportForm = ({ isAdmin }) => {
   const today = dayjs().startOf('day');
   const yesterday = today.subtract(1, 'day');
 
   const [openAlert, setOpenAlert] = useState(false);
   const [isErrorAlert, setIsErrorAlert] = useState(false);
   const [idPreview, setIdPreview] = useState(false);
+  const { company } = useAuth();
 
   const formik = useFormik({
     initialValues: {
@@ -44,56 +46,56 @@ const ExportForm = ({ structureHeaders }) => {
       risk: Yup.string().required('Requerido'),
       structure: Yup.array().test('structure', 'Requerido', (value) => value.length > 0),
     }),
-    onSubmit: (values) => {
-      getSubCollectionErrorsWithParams(values).then((arr) => {
-        if (arr.length === 0) {
-          setOpenAlert(true);
-          setIsErrorAlert(true);
-          setIdPreview(arr);
-          return;
-        }
+    onSubmit: async (values) => {
+      const headers = isAdmin ? await getLocation(values.structure[0].id) : await getLocation(company.id);
 
-        const dateI = values.dateI.format('YYYY-MM-DD');
-        const dateF = values.dateF.format('YYYY-MM-DD');
-        const orderArrWithStructureHeaders = arr.map(
-          ({ id, structure, date, time, risk, description, image, type }) => ({
-            id,
-            ...structureHeaders.reduce((prev, elem, i) => ({ ...prev, [elem]: structure[i] }), {}),
-            date,
-            time,
-            risk,
-            description,
-            image,
-            type,
-          })
-        );
+      const arr = await getSubCollectionErrorsWithParams(values);
 
-        const nameRisk = (risk) => {
-          if (risk === 0) return 'TODOS_LOS_RIESGOS';
-          if (risk === 10) return 'RIESGO_BAJO';
-          if (risk === 20) return 'RIESGO_MEDIO';
-          if (risk === 30) return 'RIESGO_ALTO';
-          if (risk === 40) return 'RIESGO_MUY_ALTO';
-          if (risk === 40) return 'RIESGO_EXTREMO';
-          return 'NO_DEFINIDO';
-        };
-
-        const titleStructure = values.structure.reduce((prev, { title }) => {
-          if (prev === '') return title;
-          return `${prev}-${title}`;
-        }, '');
-
-        const path = `Errores_${titleStructure}_entre_${dateI}_y_${dateF}_riesgo_${nameRisk()}.xlsx`;
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(orderArrWithStructureHeaders);
-        XLSX.utils.book_append_sheet(wb, ws, 'Errores');
-        XLSX.writeFile(wb, path);
-
+      if (arr.length === 0) {
         setOpenAlert(true);
-        setIsErrorAlert(false);
-        setIdPreview(path);
-      });
+        setIsErrorAlert(true);
+        setIdPreview(arr);
+        return;
+      }
+
+      const dateI = values.dateI.format('YYYY-MM-DD');
+      const dateF = values.dateF.format('YYYY-MM-DD');
+      const orderArrWithStructureHeaders = arr.map(({ id, structure, date, time, risk, description, image, type }) => ({
+        id,
+        ...headers.reduce((prev, elem, i) => ({ ...prev, [elem]: structure[i] }), {}),
+        date,
+        time,
+        risk,
+        description,
+        image,
+        type,
+      }));
+
+      const nameRisk = (risk) => {
+        if (risk === 0) return 'TODOS_LOS_RIESGOS';
+        if (risk === 10) return 'RIESGO_BAJO';
+        if (risk === 20) return 'RIESGO_MEDIO';
+        if (risk === 30) return 'RIESGO_ALTO';
+        if (risk === 40) return 'RIESGO_MUY_ALTO';
+        if (risk === 40) return 'RIESGO_EXTREMO';
+        return 'NO_DEFINIDO';
+      };
+
+      const titleStructure = values.structure.reduce((prev, { title }) => {
+        if (prev === '') return title;
+        return `${prev}-${title}`;
+      }, '');
+
+      const path = `Errores_${titleStructure}_entre_${dateI}_y_${dateF}_riesgo_${nameRisk(values.risk)}.xlsx`;
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(orderArrWithStructureHeaders);
+      XLSX.utils.book_append_sheet(wb, ws, 'Errores');
+      XLSX.writeFile(wb, path);
+
+      setOpenAlert(true);
+      setIsErrorAlert(false);
+      setIdPreview(path);
     },
   });
 
@@ -169,6 +171,7 @@ const ExportForm = ({ structureHeaders }) => {
       <Box sx={{ mt: 5 }}>
         <Stepper
           onFinish={handleDateStructure}
+          isAdmin={isAdmin}
           fullWidth
           errorSubmit={Boolean(formik.errors.structure && formik.touched.structure)}
         />
@@ -183,7 +186,7 @@ const ExportForm = ({ structureHeaders }) => {
 };
 
 ExportForm.propTypes = {
-  structureHeaders: PropTypes.arrayOf(PropTypes.string).isRequired,
+  isAdmin: PropTypes.bool.isRequired,
 };
 
 export default ExportForm;

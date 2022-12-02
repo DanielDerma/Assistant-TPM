@@ -8,17 +8,23 @@ BasicBreadcrumbs.propTypes = {
   utils: PropTypes.object,
   loading: PropTypes.bool,
   error: PropTypes.bool,
+  paths: PropTypes.array,
 };
 
-export default function BasicBreadcrumbs({ utils, loading, error }) {
-  console.log({loading, error});
-  if (loading  || error) return null;
-  console.log(utils);
+export default function BasicBreadcrumbs({ utils, loading, error, paths }) {
+  if (loading || error) return null;
+  console.log(paths.slice(0, 0 + 1).join('/'));
   return (
     <div role="presentation">
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 5 }}>
-        {[...utils.structure, ''].map((item) => (
-          <Link component={RouterLink} to={item?.href || '#'} key={item} underline="hover" color="text.primary">
+        {[...utils.structure, ''].map((item, i) => (
+          <Link
+            component={RouterLink}
+            to={paths.slice(0, i + 1).join('/') || '#'}
+            key={item}
+            underline="hover"
+            color="text.primary"
+          >
             {item?.title || ''}
           </Link>
         ))}

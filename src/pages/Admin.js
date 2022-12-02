@@ -209,7 +209,7 @@ export default function User() {
     setOpenFilter(false);
   };
 
-  console.log({ selected });
+  console.log();
 
   return (
     <Page title="Admin">

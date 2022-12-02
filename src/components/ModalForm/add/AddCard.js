@@ -24,7 +24,7 @@ import Dropzone from '../../Dropzone';
 import StepperForm from '../../StepperForm';
 import { createError } from '../../../services/firebaseFunctions';
 
-const FormAdd = ({ onClose, open, title, onConfirm }) => {
+const FormAdd = ({ onClose, open, title, onConfirm, isAdmin }) => {
   const [imgPreview, setImgPreview] = useState('');
   const [loading, setLoading] = useState(false);
   const today = dayjs(new Date());
@@ -88,6 +88,8 @@ const FormAdd = ({ onClose, open, title, onConfirm }) => {
     formik.setFieldValue('structure', value);
   };
 
+  console.log(formik.errors);
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth sx={{ minHeight: 700 }}>
       <DialogTitle>{title.title}</DialogTitle>
@@ -95,6 +97,7 @@ const FormAdd = ({ onClose, open, title, onConfirm }) => {
         <Grid container>
           <Grid item xs={12} md={4}>
             <StepperForm
+              isAdmin={isAdmin}
               onFinish={handleStructure}
               errorSubmit={Boolean(formik.errors.structure && formik.touched.structure)}
             />
@@ -170,6 +173,7 @@ FormAdd.propTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.object.isRequired,
   onConfirm: PropTypes.func.isRequired,
+  isAdmin: PropTypes.bool,
 };
 
 export default FormAdd;

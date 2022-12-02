@@ -15,37 +15,46 @@ FormDialog.propTypes = {
   onFinish: PropTypes.func,
   errorSubmit: PropTypes.bool,
   fullWidth: PropTypes.bool,
+  isAdmin: PropTypes.bool,
 };
 
-export default function FormDialog({ onFinish, errorSubmit, fullWidth = false }) {
+export default function FormDialog({ onFinish, errorSubmit, fullWidth = false, isAdmin }) {
   const { company } = useAuth();
   const [activeStep, setActiveStep] = React.useState(0);
   const [value, setValue] = React.useState('');
   const [valueId, setValueId] = React.useState('');
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [loadingBtn, setLoadingBtn] = React.useState(true);
   const [menuItems, setMenuItems] = React.useState([]);
-  const [arrayCompany, setArrayCompany] = React.useState([{ id: company.id, title: company.title }]);
-
+  const [arrayCompany, setArrayCompany] = React.useState(!isAdmin ? [{ id: company.id, title: company.title }] : []);
   const [steps, setSteps] = React.useState([]);
 
   React.useEffect(() => {
+    if (isAdmin) {
+      setSteps(['company']);
+      return;
+    }
+    getLocations(company.id);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    console.log({ arrayCompany });
+    getMenuItems(arrayCompany);
+  }, [arrayCompany]);
+
+  const getLocations = async (id) => {
     setLoading(true);
-    getLocation(company.id)
-      .then((steps) => {
-        const stepsForForm = steps.slice(1);
-        setSteps(stepsForForm);
+    getLocation(id)
+      .then((stepsDoc) => {
+        const stepsForForm = stepsDoc.slice(1);
+        setSteps([...steps, ...stepsForForm]);
         setLoading(false);
       })
       .catch((err) => {
         console.log(err);
         setLoading(false);
       });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  React.useEffect(() => {
-    getMenuItems(arrayCompany);
-  }, [arrayCompany]);
+  };
 
   const getMenuItems = async (data) => {
     setLoadingBtn(true);
@@ -55,16 +64,25 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
       setLoadingBtn(false);
     } catch (error) {
       console.log(error);
+    } finally {
       setLoadingBtn(false);
     }
   };
 
   const handleNext = (isSubmit) => {
+    if (isSubmit && isAdmin && activeStep === 0) {
+      getLocations(valueId.id);
+      setArrayCompany([...arrayCompany, valueId]);
+    }
     if (!isSubmit) {
       setArrayCompany([...arrayCompany, valueId]);
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setValue('');
     }
+    if (isSubmit) {
+      onFinish([...arrayCompany, valueId]);
+    }
+
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setValue('');
   };
 
   const handleBack = () => {
@@ -73,17 +91,11 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    onFinish([...arrayCompany, valueId], steps);
-  };
-
   const handleValueId = (selectedTitle) => {
     const { id, title } = menuItems.find((item) => item.title === selectedTitle);
     setValueId({ id, title });
   };
-  // loading skeleton
+
   if (loading) {
     return (
       <Box sx={{ width: '90%' }}>
@@ -104,13 +116,7 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
             <Step key={step}>
               <StepLabel>{step}</StepLabel>
               <StepContent>
-                <FormControl
-                  variant="standard"
-                  sx={{ m: 1 }}
-                  component="form"
-                  onSubmit={handleSubmit}
-                  fullWidth={fullWidth}
-                >
+                <FormControl variant="standard" sx={{ m: 1 }} component="form" fullWidth={fullWidth}>
                   <Select
                     labelId="campus"
                     id={step}
@@ -143,7 +149,6 @@ export default function FormDialog({ onFinish, errorSubmit, fullWidth = false })
                       <LoadingButton
                         loading={loading}
                         variant="contained"
-                        type={isSubmit ? 'submit' : 'button'}
                         onClick={() => handleNext(isSubmit)}
                         disabled={loading || value === ''}
                         sx={{ mt: 1, mr: 1 }}

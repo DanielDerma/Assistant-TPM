@@ -9,7 +9,7 @@ import Media from '../components/Media';
 import Iconify from '../components/Iconify';
 import { getFeed2 } from '../services/firebaseFunctions';
 
-const Area = () => {
+const SubItems = () => {
   const params = useParams();
   const { pathname } = useLocation();
   const router = useNavigate();
@@ -21,14 +21,14 @@ const Area = () => {
 
   useEffect(() => {
     // take the string path
-    const path = params['*']
+    const path = params['*'];
     // check if params was a final / and remove it
     const pathname = path.slice(-1) === '/' ? path.slice(0, -1) : path;
-    if(path.slice(-1) === '/') {
+    if (path.slice(-1) === '/') {
       router(path.slice(0, -1));
     }
-    
-    const paramsArray = pathname.split('/'); 
+
+    const paramsArray = pathname.split('/');
     setLoading(true);
     getFeed2(paramsArray)
       .then(({ data, utils }) => {
@@ -53,8 +53,10 @@ const Area = () => {
     setOpen(false);
   };
 
-  console.log({data});
+  console.log({ utils });
+  const paths = params['*'].split('/');
 
+  const isAboveLimit = Object.keys(utils).length > 0 ? utils.structure.length >= paths.length : undefined;
 
   return (
     <Page title="Trabajo">
@@ -66,11 +68,11 @@ const Area = () => {
             Añadir
           </Button>
         </Stack>
-        <Breadcrumbs utils={utils} loading={loading} error={error} />
-        <Media data={data} loading={loading} pathname={pathname} error={error}/>
+        <Breadcrumbs utils={utils} loading={loading} error={error} paths={paths} />
+        <Media data={data} loading={loading} pathname={pathname} error={error} limit={isAboveLimit} />
       </Container>
     </Page>
   );
 };
 
-export default Area;
+export default SubItems;

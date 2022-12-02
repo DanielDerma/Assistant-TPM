@@ -2,6 +2,7 @@ import { Box, Container, Divider, FormControl, Grid, MenuItem, Select, Stack, Ty
 import { useTheme } from '@mui/material/styles';
 import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import Cookies from 'js-cookie';
 
 import {
   AppCurrentVisits,
@@ -17,7 +18,7 @@ const App = ({ isAdmin }) => {
   const [loading, setLoading] = useState(true);
   const [loadingBtn, setLoadingBtn] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(Cookies.get('company') || '');
   const [data, setData] = useState([]);
 
   const {
@@ -30,15 +31,18 @@ const App = ({ isAdmin }) => {
 
   useEffect(() => {
     if (isAdmin) {
+      console.log({ input });
       setLoadingBtn(true);
       getCompanies().then((data) => {
         setMenuItems(data);
         setLoadingBtn(false);
+        const { id } = data.find((item) => item.title === input);
+        getErrors(id);
       });
-    } else {
-      getErrors(companyId, thisYear);
+      return;
     }
-  }, [isAdmin]); // eslint-disable-line react-hooks/exhaustive-deps
+    getErrors(companyId);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getErrors = (input) => {
     if (input === '') return;
@@ -50,12 +54,11 @@ const App = ({ isAdmin }) => {
   };
 
   const handleInput = (event) => {
-    const { id } = menuItems.filter((item) => item.label === event.target.value);
+    const { id } = menuItems.find((item) => item.title === event.target.value);
+    Cookies.set('company', event.target.value);
     setInput(event.target.value);
     getErrors(id);
   };
-
-  console.log(data);
 
   return (
     <div>
@@ -149,28 +152,31 @@ const App = ({ isAdmin }) => {
                         name: 'Mantenimiento',
                         type: 'column',
                         fill: 'solid',
-                        data: [111, 136, 76, 108, 74, 54, 57, 84, 32, 23, 12, 32],
+                        data: data.maintenance,
                       },
                       {
                         name: 'Operación',
                         type: 'area',
                         fill: 'gradient',
-                        data: [32, 12, 23, 32, 84, 57, 54, 74, 108, 76, 136, 111],
+                        data: data.operation,
                       },
                       {
                         name: 'Seguridad',
                         type: 'line',
                         fill: 'solid',
-                        data: [32, 12, 12, 32, 84, 57, 54, 23, 108, 76, 136, 111],
+                        data: data.security,
                       },
                     ]}
                   />
                 </Grid>
-
                 <Grid item xs={12} md={6} lg={4}>
                   <AppCurrentVisits
                     title="Tarjetas de este Mes"
-                    // chartData={chartDataMonth}
+                    chartData={[
+                      { label: 'Mantenimiento', value: data.maintenance },
+                      { label: 'Operación', value: data.operation },
+                      { label: 'Seguridad', value: data.security },
+                    ]}
                     chartColors={[theme.palette.error.main, theme.palette.info.main, theme.palette.success.main]}
                   />
                 </Grid>

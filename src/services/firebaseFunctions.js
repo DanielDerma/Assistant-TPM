@@ -24,9 +24,6 @@ export const getCurrentUser = async (uid) => {
   return userSnap.data();
 };
 
-const URL =
-  process.env.NODE_ENV === 'development' ? process.env.REACT_APP_URL_PRODUCCION : process.env.REACT_APP_URL_DEVELOP;
-
 export const getCompanies = async () => {
   const docRef = query(collection(firestore, 'company'));
   const snapshot = await getDocs(docRef);
@@ -85,11 +82,11 @@ export const getFeed = async (data) => {
   });
 
   const url = urlTemp.slice(0, -2);
-  console.log({ data, url });
   const docRef = query(collection(firestore, url));
   const snapshot = await getDocs(docRef);
 
   const response = snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  console.log(response);
   if (response.length === 0) throw new Error('No data');
 
   const res = response.filter((elem) => elem.id !== 'utils');
@@ -99,6 +96,16 @@ export const getFeed = async (data) => {
 const getCurrentCounterError = async (idCompany) => {
   console.log({ idCompany });
   const docRef = doc(firestore, 'utils', 'counterErrors');
+  // check if exists
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) {
+    await setDoc(docRef, {
+      [idCompany]: 1,
+    });
+    const snapshot = await getDoc(docRef);
+    const counterError = snapshot.data()[idCompany];
+    return counterError;
+  }
   const snapshot = await getDoc(docRef);
   const counter = Number(snapshot.data()?.[idCompany]);
   console.log({ counter });
@@ -112,6 +119,20 @@ const getCurrentCounterError = async (idCompany) => {
   return newCounter;
 };
 
+const updateCounterError = async (idCompany, type, year, month, isPlus) => {
+  const docRef = doc(firestore, 'utilsDashboard', idCompany);
+  const snapshot = await getDoc(docRef);
+  const counterArrayErrorYear = snapshot.data()?.[year];
+  const counterArrayErrorType = counterArrayErrorYear?.[type];
+  counterArrayErrorType[month] += isPlus ? 1 : -1;
+  await updateDoc(docRef, {
+    [year]: {
+      ...counterArrayErrorYear,
+      [type]: counterArrayErrorType,
+    },
+  });
+};
+
 export const createError = async (values) => {
   const { structure, dateAndTime: dateAndTimeNoFirebase, risk, description, image, type } = values;
 
@@ -119,6 +140,7 @@ export const createError = async (values) => {
   const idCompany = structure[0].id;
 
   const counter = await getCurrentCounterError(idCompany);
+  await updateCounterError(idCompany, type, dateAndTimeNoFirebase.year(), dateAndTimeNoFirebase.month(), true);
 
   let url = '';
   structure.forEach(({ id }, i) => {
@@ -231,7 +253,7 @@ export const getSubCollectionErrors = async (title) => {
 export const getErrorsCount = async (id, year) => {
   const querySnapshot = await getDoc(doc(firestore, 'utilsDashboard', id));
 
-  const data = querySnapshot.docs.map((doc) => doc.data())[year];
+  const data = querySnapshot.data()[year];
 
   return data;
 };
@@ -286,7 +308,7 @@ export const createUser = async (values, currentUser) => {
   const docRef = doc(firestore, 'user', values.email);
   await setDoc(docRef, { ...values, profileImg: imageUrl });
   const idToken = await currentUser.getIdToken();
-  const response = await fetch(`${URL}/user`, {
+  const response = await fetch(`${process.env.REACT_APP_SERVER_URL}/user`, {
     method: 'POST',
     body: JSON.stringify(values),
     headers: new Headers({

@@ -13,7 +13,14 @@ import {
   TableContainer,
   TablePagination,
   Typography,
+  Skeleton,
+  Stack,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
+import Cookies from 'js-cookie';
+
 // components
 import Alert from '../components/Alert';
 import Page from '../components/Page';
@@ -22,7 +29,7 @@ import SearchNotFound from '../components/SearchNotFound';
 import { UserListHead, UserListToolbar, UserMoreMenu, FilterSidebar } from '../sections/@dashboard/user';
 import { Done, DoneAll, MoreInfo } from '../components/ModalForm/filter';
 // mock
-import { getLocation, getSubCollectionErrors } from '../services/firebaseFunctions';
+import { getCompanies, getLocation, getSubCollectionErrors } from '../services/firebaseFunctions';
 import useAuth from '../hooks/useAuth';
 
 // ----------------------------------------------------------------------
@@ -99,22 +106,54 @@ export default function User({ isAdmin }) {
     risk: [10, 20, 30, 40, 50],
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [openAlert, setOpenAlert] = useState(false);
   const [msgAlert, setMsgAlert] = useState('');
 
-  useEffect(() => {
-    getErrors();
-  }, []); //  eslint-disable-line react-hooks/exhaustive-deps
+  const [loadingBtn, setLoadingBtn] = useState(false);
+  const [menuItems, setMenuItems] = useState([]);
+  const [input, setInput] = useState(Cookies.get('companyFilter') || '');
 
-  const getErrors = () => {
+  useEffect(() => {
+    if (isAdmin) {
+      handleAdminContent(input);
+      return;
+    }
+    getErrors(company.title);
+    getLocation(company.id)
+      .then((steps) => {
+        const headers = steps.map((step, i) => ({ id: i, label: step, alignRight: false }));
+        setHeaders(headers);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const getErrors = (input) => {
+    if (input === '') return;
     setLoading(true);
-    getSubCollectionErrors(company.title).then((data) => {
+    getSubCollectionErrors(input).then((data) => {
       setSelected([]);
       setData(data);
       setLoading(false);
     });
+  };
+
+  const handleAdminContent = async (input) => {
+    setLoadingBtn(true);
+    const companies = await getCompanies();
+    setMenuItems(companies);
+    setLoadingBtn(false);
+    if (input === '') return;
+    const { title, id } = companies.find((item) => item.title === input);
+    const headers = await getLocation(id);
+    const headersWithId = headers.map((step, i) => ({ id: i, label: step, alignRight: false }));
+    getErrors(title);
+    setHeaders(headersWithId);
   };
 
   const handleFinishDone = (id) => {
@@ -134,19 +173,6 @@ export default function User({ isAdmin }) {
     setMsgAlert(`Se ha realizado la tareas con éxito, ids: ${selectedElementsString}`);
     getErrors();
   };
-
-  useEffect(() => {
-    getLocation(company.id)
-      .then((steps) => {
-        const headers = steps.map((step, i) => ({ id: i, label: step, alignRight: false }));
-        setHeaders(headers);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
-      });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -191,13 +217,20 @@ export default function User({ isAdmin }) {
     setFilterLocation(event.target.value);
   };
 
+  const handleInput = (event) => {
+    const { id } = menuItems.find((item) => item.title === event.target.value);
+    Cookies.set('companyFilter', event.target.value);
+    setInput(event.target.value);
+    getErrors(id);
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - data.length) : 0;
 
   const filteredUsers = applySortFilter(data, config, getComparator(order, orderBy), filterLocation);
 
-  const isUserNotFound = filteredUsers.length === 0;
-
   const headersTable = [{ id: 'id', label: 'Folio', alignRight: false }, ...headers, ...DEFAULT_TABLE_HEAD];
+
+  const isUserNotFound = !loading && filteredUsers.length === 0;
 
   const handleOpenFilter = () => {
     setOpenFilter(true);
@@ -233,7 +266,7 @@ export default function User({ isAdmin }) {
   };
   const handleCloseAlert = () => setOpenAlert(false);
 
-  console.log(selected);
+  console.log({ headers });
 
   return (
     <Page title="Filtrado">
@@ -245,9 +278,38 @@ export default function User({ isAdmin }) {
       <Done open={openDone} onClose={handleCloseDone} selectedRow={selectedRow} onFinish={handleFinishDone} />
       <DoneAll open={openDeleteAll} onClose={handleCloseDeleteAll} selected={selected} onFinish={handleFinishDoneAll} />
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Filtrado
-        </Typography>
+        {isAdmin ? (
+          <Stack spacing={3} direction={{ xs: 'column', sm: 'row' }} sx={{ mb: 5 }}>
+            <Typography variant="h4">Selecciona una Compañía para filtrar:</Typography>
+            <FormControl sx={{ minWidth: 250 }}>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select-label"
+                variant="standard"
+                sx={{ fontSize: 20 }}
+                label="Compañía"
+                value={input}
+                onChange={handleInput}
+              >
+                {[
+                  <MenuItem value="" key="null" disabled>
+                    <em>Ninguno</em>
+                  </MenuItem>,
+                  !loadingBtn &&
+                    menuItems.map((item) => (
+                      <MenuItem key={item.id} value={item.title}>
+                        {item.title}
+                      </MenuItem>
+                    )),
+                ]}
+              </Select>
+            </FormControl>
+          </Stack>
+        ) : (
+          <Typography variant="h4" sx={{ mb: 5 }}>
+            Filtrado
+          </Typography>
+        )}
         <Card>
           <UserListToolbar
             onDeleteAll={handleOpenDeleteAll}
@@ -310,10 +372,22 @@ export default function User({ isAdmin }) {
                   )}
                 </TableBody>
 
+                {loading && (
+                  <TableBody>
+                    {[1, 2, 3, 4].map((i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={9}>
+                          <Skeleton variant="rectangular" width="100%" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                )}
+
                 {isUserNotFound && (
                   <TableBody>
                     <TableRow>
-                      <TableCell align="center" colSpan={9} sx={{ py: 3 }}>
+                      <TableCell align="center" colSpan={11} sx={{ py: 3 }}>
                         <SearchNotFound searchQuery={filterLocation} />
                       </TableCell>
                     </TableRow>
