@@ -1,5 +1,16 @@
 ## Assistant-TPM
 
-diagramas y documentacion: https://drive.google.com/drive/folders/1vAm11GB31vHej2_4pz3UMRKFzE5Q2DGE?usp=sharing
+Objective: Improve tracking of red, blue, and green cards in a company.
 
-Objetivo: Dar una mejor seguimiento a las tarjetas rojas, azules y verdes en una empresa.
+## Table Of Contents:
+
+- [⚙️ Project Configuration](docs/project-configuration.md)
+- [👁️ Style Guide](docs/style-guide.md)
+- [🗄️ Project Structure](docs/project-structure.md)
+- [🔐 Security](docs/security.md)
+- [📦 Deployment](docs/deployment.md)
+
+## 🚀 More Information
+
+- [📖 User Docs](<[docs/documentation.md](https://drive.google.com/file/d/1dLIL72P-kfh0lUHFVjFhI6Wpfr6l_5-n/view?usp=sharing)>)
+- [📚 Additional Resources](https://drive.google.com/file/d/1ePBSW5wbJjvqZgGWVgJskAQvP62b9-rI/view?usp=sharing)
