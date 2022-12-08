@@ -62,6 +62,9 @@ export default function StepperManage({ steps, handleData, onClose }) {
             const formikValue = formik.values[val];
             const formikTouched = formik.touched[val];
             const formikErrors = formik.errors[val];
+
+            console.log({ formik: formikValue?.image, formikV: Boolean(formikValue?.image), val });
+
             return (
               <Step key={step.id}>
                 <StepLabel>{step.label}</StepLabel>
@@ -70,7 +73,6 @@ export default function StepperManage({ steps, handleData, onClose }) {
                     <TextField
                       value={formikValue?.title}
                       onChange={(event) => {
-                        console.log(event.target.value);
                         formik.setFieldValue(`${val}.title`, event.target.value);
                         formik.setFieldValue(`${val}.label`, step.label);
                       }}
@@ -111,7 +113,7 @@ export default function StepperManage({ steps, handleData, onClose }) {
                       <LoadingButton
                         variant="contained"
                         type={index === steps.length - 1 ? 'submit' : 'button'}
-                        disabled={formikErrors?.title || formikErrors?.description}
+                        disabled={!(formikValue?.title && formikValue?.description && formikValue?.image)}
                         onClick={handleNext}
                         sx={{ mt: 1, mr: 1 }}
                       >

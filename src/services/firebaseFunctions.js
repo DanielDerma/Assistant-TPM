@@ -170,30 +170,40 @@ export const createError = async (values) => {
 };
 
 export const createFromCompany = async (data) => {
-  let urlTemp = '';
-
-  const res = Object.entries(data).map(async ([key, values]) => {
-    const id = nanoid(8);
-    urlTemp += `${key}/${id}/`;
-    const url = urlTemp.slice(0, -1);
-
-    if (key !== 'company') {
-      const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
-      const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
-      const docRefUtils = doc(firestore, urlUtils);
-      await setDoc(docRefUtils, { structure });
-    }
-
-    const docRef = doc(firestore, url);
-    await setDoc(docRef, values);
-
-    return {
-      id,
-      label: values.label,
-    };
-  });
-
   try {
+    let urlTemp = '';
+
+    const res = Object.entries(data).map(async ([key, values]) => {
+      const id = nanoid(8);
+      urlTemp += `${key}/${id}/`;
+      const url = urlTemp.slice(0, -1);
+
+      if (key !== 'company') {
+        const urlUtils = `${url.split('/').slice(0, -1).join('/')}/utils`;
+        const structure = Object.values(data).slice(0, Object.keys(data).indexOf(key));
+        const structureWithOutImage = structure.map((elem) => ({
+          title: elem.title,
+          description: elem.description,
+          label: elem.label,
+        }));
+        const docRefUtils = doc(firestore, urlUtils);
+        await setDoc(docRefUtils, { structure: structureWithOutImage });
+      }
+
+      const pathImg = `company/${id}-${values.title}`;
+      const storageRef = ref(storage, pathImg);
+      await uploadBytes(storageRef, values.image);
+      const image = await getDownloadURL(storageRef);
+
+      const docRef = doc(firestore, url);
+      await setDoc(docRef, { ...values, image });
+
+      return {
+        id,
+        label: values.label,
+      };
+    });
+
     // collection company
     const response = await Promise.all(res);
     const locationDoc = response.map((elem) => elem.label);
@@ -214,7 +224,7 @@ export const createFromCompany = async (data) => {
 
     return response;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return error;
   }
 };

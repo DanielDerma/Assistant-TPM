@@ -31,9 +31,9 @@ export const createCourseValidationSchema = (obj) => {
   obj.forEach((elem) => {
     newObj[elem.id] = Yup.object().shape({
       title: Yup.string().required('Campo requerido'),
-      description: Yup.string(),
-      image: Yup.string(),
-      label: Yup.string(),
+      description: Yup.string().required('Campo requerido'),
+      image: Yup.string().required('Campo requerido'),
+      label: Yup.string().required('Campo requerido'),
     });
   });
   return Yup.object().shape(newObj);

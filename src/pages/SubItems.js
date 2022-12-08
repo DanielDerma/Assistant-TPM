@@ -53,7 +53,6 @@ const SubItems = () => {
     setOpen(false);
   };
 
-  console.log({ utils });
   const paths = params['*'].split('/');
 
   const isAboveLimit = Object.keys(utils).length > 0 ? utils.structure.length >= paths.length : undefined;

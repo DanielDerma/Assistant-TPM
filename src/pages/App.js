@@ -26,6 +26,7 @@ const App = ({ isAdmin }) => {
   } = useAuth();
 
   const thisYear = new Date().getFullYear();
+  const thisMonth = new Date().getMonth();
 
   const theme = useTheme();
 
@@ -59,6 +60,8 @@ const App = ({ isAdmin }) => {
     setInput(event.target.value);
     getErrors(id);
   };
+
+  console.log(data.maintenance, data.operation, data.security);
 
   return (
     <div>
@@ -173,9 +176,9 @@ const App = ({ isAdmin }) => {
                   <AppCurrentVisits
                     title="Tarjetas de este Mes"
                     chartData={[
-                      { label: 'Mantenimiento', value: data.maintenance },
-                      { label: 'Operación', value: data.operation },
-                      { label: 'Seguridad', value: data.security },
+                      { label: 'Mantenimiento', value: data.maintenance?.[thisMonth] },
+                      { label: 'Operación', value: data.operation?.[thisMonth] },
+                      { label: 'Seguridad', value: data.security?.[thisMonth] },
                     ]}
                     chartColors={[theme.palette.error.main, theme.palette.info.main, theme.palette.success.main]}
                   />
