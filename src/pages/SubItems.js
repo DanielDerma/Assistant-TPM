@@ -7,7 +7,7 @@ import Breadcrumbs from '../components/Breadcrumbs';
 import AddSubItem from '../components/ModalForm/AddSubItem';
 import Media from '../components/Media';
 import Iconify from '../components/Iconify';
-import { getFeed2 } from '../services/firebaseFunctions';
+import { getFeed2, getLocation } from '../services/firebaseFunctions';
 
 const SubItems = () => {
   const params = useParams();
@@ -18,6 +18,7 @@ const SubItems = () => {
   const [utils, setUtils] = useState({});
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [limit, setLimit] = useState(false);
 
   useEffect(() => {
     // take the string path
@@ -27,6 +28,10 @@ const SubItems = () => {
     if (path.slice(-1) === '/') {
       router(path.slice(0, -1));
     }
+
+    getLocation(path.split('/')[0]).then((loc) => {
+      setLimit(Object.keys(loc).length - 1 === path.split('/').length);
+    });
 
     const paramsArray = pathname.split('/');
     setLoading(true);
@@ -45,6 +50,8 @@ const SubItems = () => {
       });
   }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {}, [params]);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -54,8 +61,6 @@ const SubItems = () => {
   };
 
   const paths = params['*'].split('/');
-
-  const isAboveLimit = Object.keys(utils).length > 0 ? utils.structure.length >= paths.length : undefined;
 
   return (
     <Page title="Trabajo">
@@ -68,7 +73,7 @@ const SubItems = () => {
           </Button>
         </Stack>
         <Breadcrumbs utils={utils} loading={loading} error={error} paths={paths} />
-        <Media data={data} loading={loading} pathname={pathname} error={error} limit={isAboveLimit} />
+        <Media data={data} loading={loading} pathname={pathname} error={error} limit={limit} />
       </Container>
     </Page>
   );

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const Media = ({ data, pathname, loading, error, limit }) => {
+  console.log({ limit });
   if (error) {
     return (
       <Typography variant="h5" color="error">
@@ -45,9 +46,11 @@ const Media = ({ data, pathname, loading, error, limit }) => {
       {data.map(({ id, title, description, image }) => (
         <Grid key={id} item xs={12} md={6}>
           <Card>
+            <Link to />
             <CardActionArea
               component={Link}
-              to={!limit ? `${pathname}/${id}` : '#'}
+              to={`${pathname}/${id}`}
+              disabled={limit}
               sx={{
                 boxShadow: 0,
               }}

@@ -13,21 +13,23 @@ BasicBreadcrumbs.propTypes = {
 
 export default function BasicBreadcrumbs({ utils, loading, error, paths }) {
   if (loading || error) return null;
-  console.log(paths.slice(0, 0 + 1).join('/'));
   return (
     <div role="presentation">
       <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 5 }}>
-        {[...utils.structure, ''].map((item, i) => (
-          <Link
-            component={RouterLink}
-            to={paths.slice(0, i + 1).join('/') || '#'}
-            key={item}
-            underline="hover"
-            color="text.primary"
-          >
-            {item?.title || ''}
-          </Link>
-        ))}
+        {[...utils.structure, ''].map((item, i) => {
+          console.log(i, paths.slice(0, i).join('/') || '/');
+          return (
+            <Link
+              component={RouterLink}
+              to={paths.slice(0, i).join('/') || ''}
+              key={item}
+              underline="hover"
+              color="text.primary"
+            >
+              {item?.title || ''}
+            </Link>
+          );
+        })}
       </Breadcrumbs>
     </div>
   );

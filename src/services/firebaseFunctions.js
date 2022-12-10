@@ -215,6 +215,7 @@ export const createFromCompany = async (data) => {
     // collection utilsDashboard
     const docRef2 = doc(firestore, 'utilsDashboard', response[0].id);
     await setDoc(docRef2, {
+      company: response[0].title,
       [new Date().getFullYear()]: {
         maintenance: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         operation: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
